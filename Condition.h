@@ -1,7 +1,6 @@
 #ifndef MYCONDITION_H
 #define MYCONDITION_H
 
-#include <pthread.h>
 #include "Mutex.h"
 #include "Thread.h"
 

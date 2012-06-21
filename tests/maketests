@@ -1,0 +1,21 @@
+TEST_APP=tests/dotest
+TEST_SRC=tests/test.cpp tests/StringTest.cpp tests/SocketTest.cpp
+TEST_OBJS=$(TEST_SRC:%.cpp=%.o)
+
+test_pre:
+	@@if [ ! -d $(TOP)/.deps/tests ]; then mkdir -p $(TOP)/.deps/tests; fi
+
+
+test: test_pre $(LIB) $(TEST_APP)
+	@echo "Running unit tests"
+	$(TEST_APP)
+
+$(TEST_APP): $(TEST_OBJS) $(OBJS_OTHER)
+	@$(CXX) $(LDFLAGS) -o $(TEST_APP) $(TEST_OBJS) $(OBJS_OTHER) $(LDLIBS) -lcppunit
+
+test_clean:
+	@echo "Cleaning unit tests"
+	@rm -f $(TOP)/tests/*~ $(TOP)/tests/*.o $(TEST_APP) $(TEST_OBJS)
+
+.PHONY: test test_pre test_clean
+

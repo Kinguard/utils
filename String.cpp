@@ -12,9 +12,61 @@
 
 #include <iomanip>
 #include <iostream>
+#include <algorithm>
 #include <cctype>
 
 namespace Utils{
+
+namespace String{
+
+string Trimmed( const string& str, const char* sepSet )
+{
+	string::size_type const first = str.find_first_not_of(sepSet);
+	return ( first == string::npos ) ?
+		string():
+		str.substr( first, str.find_last_not_of( sepSet ) - first + 1 );
+}
+
+string ToLower( string str )
+{
+	int (*pf)(int)=tolower;
+	transform(str.begin(), str.end(), str.begin(), pf);
+	return str;
+}
+
+string ToUpper( string str )
+{
+	int (*pf)(int)=toupper;
+	transform(str.begin(), str.end(), str.begin(), pf);
+	return str;
+}
+
+string Chomp( const string& str)
+{
+	string::size_type pos = str.find_last_not_of("\n");
+	return pos==string::npos?str:str.substr(0, pos+1);
+}
+
+list<string> Split(const string& str, const char delim)
+{
+	list<string> items;
+	int pos=-1,oldpos=0;
+	do {
+		pos=str.find(delim,oldpos);
+		if ( oldpos>=0 ) {
+			string item = Trimmed(str.substr(oldpos,pos-oldpos)," ");
+			if( item.length()>0){
+				items.push_back(item);
+			}
+		}
+		oldpos=pos+1;
+    }while ( oldpos>0 );
+
+	return items;
+}
+
+
+} // Namespace String
 
 std::string Errno(const std::string& str){
 	std::string ret;
@@ -59,5 +111,5 @@ void HexDump(const void* data, int len){
 }
 
 
-}
+}// Namespace Utils
 

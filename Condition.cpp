@@ -1,9 +1,5 @@
-
 #include "Condition.h"
-#include <stdexcept>
-#include <cstring>
-#include <cerrno>
-#include <cstdio>
+#include "Exceptions.h"
 
 namespace Utils{
 
@@ -15,7 +11,7 @@ void Condition::Wait(){
     lock.Lock();
 
     if (pthread_cond_wait(&condition, lock.GetPThreadMutex())) {
-		throw std::runtime_error("Failed to wait on condition : "+std::string(strerror(errno)));
+		throw ErrnoException("Failed to wait on condition");
     }
 
     lock.Unlock();
@@ -24,7 +20,7 @@ void Condition::Wait(){
 void Condition::Notify(){
     lock.Lock();
     if (pthread_cond_signal(&condition)) {
-		throw std::runtime_error("Failed to signal writer thread : "+std::string(strerror(errno)));
+		throw ErrnoException("Failed to signal condition");
     }
     lock.Unlock();
 }
@@ -32,7 +28,7 @@ void Condition::Notify(){
 void Condition::NotifyAll(){
     lock.Lock();
     if (pthread_cond_broadcast(&condition)) {
-		throw std::runtime_error("Failed to signal writer thread : "+std::string(strerror(errno)));
+		throw ErrnoException("Failed to broadcast condition");
     }
     lock.Unlock();
 }

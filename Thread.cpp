@@ -1,9 +1,7 @@
-
 #include "Thread.h"
+#include "Exceptions.h"
 #include <sys/signal.h>
-#include <stdexcept>
 #include <string>
-#include <cerrno>
 #include <cstring>
 
 namespace Utils{
@@ -31,22 +29,22 @@ void Thread::Start(){
 
 	int s = pthread_attr_init(&attr);
 	if( s != 0 ){
-		throw std::runtime_error("Failed to init thread attribute : "+std::string(strerror(errno)));
+		throw ErrnoException("Failed to init thread attribute");
 	}
 
 	if( this->detached ){
 		s = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
 		if( s != 0 ){
-			throw std::runtime_error("Failed to set detached state on thread attribute :" +std::string(strerror(errno)));
+			throw ErrnoException("Failed to set detached state on thread attribute");
 		}
 	}
 
-    pthread_create(&this->thread,&this->attr,Thread::BootstrapThread,this);
+    pthread_create( &this->thread, &this->attr, Thread::BootstrapThread, this);
 
 }
 
 void Thread::Kill(){
-    Signal(SIGKILL);
+    this->Signal(SIGKILL);
 }
 
 void Thread::Yield(){
@@ -54,7 +52,7 @@ void Thread::Yield(){
 }
 
 void Thread::Signal(int signum){
-    pthread_kill(thread,signum);
+    pthread_kill( this->thread, signum );
 }
 
 Thread::~Thread(){
