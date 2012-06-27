@@ -9,6 +9,7 @@
 #define SOCKET_H_
 
 #include <string>
+#include <vector>
 #include <cstdint>
 
 #include "Exceptions.h"
@@ -31,8 +32,16 @@ public:
 	int getSocketFd(){ return this->sock; }
 
 	virtual size_t Write(const void* buf, size_t len);
+	virtual size_t Write(const std::vector<char>& v);
+
 	virtual size_t Read(void* buf, size_t len);
 
+	//Read at most vector::capacity bytes and store into vector
+	virtual size_t Read(std::vector<char>& v);
+	//Read at most len bytes and append to v
+	virtual size_t AppendTo(std::vector<char>& v, size_t len);
+
+	//TODO: Implement a close method and check for a closed connection in other methods.
 	virtual ~Socket();
 
 	enum{

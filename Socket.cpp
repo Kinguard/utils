@@ -34,7 +34,6 @@ Utils::Socket::Socket(int domain, int type):domain(domain), type(type)
 	}
 }
 
-//TODO: Make sure that everything is written
 size_t Utils::Socket::Write(const void* buf, size_t len)
 {
 	ssize_t ret;
@@ -50,6 +49,11 @@ size_t Utils::Socket::Write(const void* buf, size_t len)
 	return ret;
 }
 
+size_t Utils::Socket::Write(const std::vector<char>& v) {
+	return this->Write(&v[0], v.size());
+}
+
+
 size_t Utils::Socket::Read(void* buf, size_t len)
 {
 	ssize_t ret;
@@ -59,6 +63,24 @@ size_t Utils::Socket::Read(void* buf, size_t len)
 	}
 
 	return ret;
+}
+
+size_t Utils::Socket::Read(std::vector<char>& v)
+{
+	v.resize(v.capacity());
+	size_t size = this->Read(&v[0], v.capacity());
+	v.resize(size);
+	return size;
+}
+
+size_t Utils::Socket::AppendTo(std::vector<char>& v, size_t len) {
+	size_t cur_size = v.size();
+	v.resize(cur_size+len);
+
+	size_t rd = this->Read(&v[cur_size],len);
+	v.resize(cur_size+rd);
+
+	return rd;
 }
 
 Utils::Socket::~Socket()
@@ -132,4 +154,3 @@ Utils::UDPSocket::UDPSocket(const std::string& host, uint16_t port):
 {
 	this->connect();
 }
-

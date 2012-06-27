@@ -47,20 +47,29 @@ string Chomp( const string& str)
 	return pos==string::npos?str:str.substr(0, pos+1);
 }
 
-list<string> Split(const string& str, const char delim)
+list<string> Split(const string& str, const char* delim, ssize_t limit)
 {
 	list<string> items;
 	int pos=-1,oldpos=0;
 	do {
 		pos=str.find(delim,oldpos);
 		if ( oldpos>=0 ) {
-			string item = Trimmed(str.substr(oldpos,pos-oldpos)," ");
+			string item;
+			// Found match
+			if( limit == -1 || limit > 1 ){
+				item = Trimmed(str.substr(oldpos,pos-oldpos),delim);
+			}else if( limit == 1){
+				item = Trimmed(str.substr(oldpos,str.size()-oldpos),delim);
+			}
+
+			item = Trimmed(item," ");
 			if( item.length()>0){
 				items.push_back(item);
+				limit = limit == -1? -1: limit-1;
 			}
 		}
 		oldpos=pos+1;
-    }while ( oldpos>0 );
+    }while ( (limit == -1 || limit > 0) && oldpos>0 );
 
 	return items;
 }

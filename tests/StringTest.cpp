@@ -41,25 +41,31 @@ void StringTest::testToLower()
 
 void StringTest::testSplit()
 {
-	int items = String::Split("",' ').size();
+	int items = String::Split(""," ").size();
 	CPPUNIT_ASSERT_EQUAL(0, items);
 
-	items = String::Split(" aaaa",' ').size();
+	items = String::Split(" aaaa"," ").size();
 	CPPUNIT_ASSERT_EQUAL(1, items);
 
-	items = String::Split("aaaa ",' ').size();
+	items = String::Split("aaaa "," ").size();
 	CPPUNIT_ASSERT_EQUAL(1, items);
 
-	items = String::Split("aaaa      ",' ').size();
+	items = String::Split("aaaa      "," ").size();
 	CPPUNIT_ASSERT_EQUAL(1, items);
 
-	items = String::Split(" a  a   a a      ",' ').size();
+	items = String::Split(" a  a   a a      "," ").size();
 	CPPUNIT_ASSERT_EQUAL(4, items);
 
-	items = String::Split("XaXaXaXaX",'X').size();
+	items = String::Split("XaXaXaXaX","X").size();
 	CPPUNIT_ASSERT_EQUAL(4, items);
 
-	list<string> res = String::Split(" 1 2  3 4",' ');
+	items = String::Split("XaXXaXaXaXX","X").size();
+	CPPUNIT_ASSERT_EQUAL(4, items);
+
+	items = String::Split("XAaXAXAaXAaXAaXAXA","XA").size();
+	CPPUNIT_ASSERT_EQUAL(4, items);
+
+	list<string> res = String::Split(" 1 2  3 4"," ");
 	CPPUNIT_ASSERT_EQUAL(string("1"),res.front());
 	res.pop_front();
 
@@ -73,5 +79,13 @@ void StringTest::testSplit()
 	res.pop_front();
 
 	CPPUNIT_ASSERT( res.empty() );
+
+	CPPUNIT_ASSERT_EQUAL((size_t)2,String::Split("a b c d"," ",2).size());
+	CPPUNIT_ASSERT_EQUAL((size_t)2,String::Split(" a b c d"," ",2).size());
+	CPPUNIT_ASSERT_EQUAL((size_t)2,String::Split("a b c d "," ",2).size());
+	CPPUNIT_ASSERT_EQUAL((size_t)2,String::Split("  a    b   c  d   "," ",2).size());
+	CPPUNIT_ASSERT_EQUAL((size_t)3,String::Split(" a b c d "," ",3).size());
+	CPPUNIT_ASSERT_EQUAL((size_t)4,String::Split("a b  c d "," ",4).size());
+
 }
 

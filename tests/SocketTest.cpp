@@ -58,6 +58,7 @@ void SocketTest::testTCPClientEcho() {
 	string hello("Hello\r\n");
 	char buf[1024];
 
+	// Buffer implementation
 	size_t wt = t.Write(hello.c_str(),hello.length());
 	CPPUNIT_ASSERT_EQUAL(hello.length(), wt);
 	size_t rd = t.Read(buf,1024);
@@ -66,6 +67,19 @@ void SocketTest::testTCPClientEcho() {
 	CPPUNIT_ASSERT( hello == trd );
 
 	//cerr << "Sent ["<<hello<<"] got ["<<trd<<"]"<<endl;
+
+	// Vector implementation
+	vector<char> v;
+	v.reserve(1024);
+	string goodbye("Good Bye!\r\n");
+	vector<char> line(goodbye.begin(),goodbye.end());
+
+	wt = t.Write(line);
+	CPPUNIT_ASSERT_EQUAL(goodbye.length(), wt);
+	rd = t.Read(v);
+	CPPUNIT_ASSERT_EQUAL(wt,rd);
+	string trd2(&v[0],rd);
+	CPPUNIT_ASSERT( goodbye == trd2 );
 }
 
 void SocketTest::testUDPSocketConstructor()
