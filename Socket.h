@@ -54,18 +54,23 @@ public:
 		Stream = SOCK_STREAM,
 		Datagram = SOCK_DGRAM
 	};
+
 };
 
 class InetSocket: public Socket{
+public:
+	void Connect(const std::string& host="", uint16_t port=0);
+	void Bind(uint16_t port, const std::string& interface="");
 protected:
-	InetSocket(): Socket(){};
+	InetSocket(): Socket(), port(-1),connected(false),bound(false){};
 	InetSocket(int domain, int type, const std::string& host, uint16_t port):
-		Socket(domain, type),host(host), port(port)	{};
-	void connect(void);
-
+		Socket(domain, type),host(host), port(port),
+		connected(false), bound(false)	{};
 private:
 	std::string host;
 	uint16_t port;
+	bool connected;
+	bool bound;
 };
 
 class TCPClient: public InetSocket{
@@ -84,6 +89,26 @@ class UDPSocket: public InetSocket{
 public:
 	UDPSocket(void);
 	UDPSocket(const std::string& host,uint16_t port);
+
+	size_t SendTo(const std::string& host, uint16_t port, const char* buff, size_t len);
+	size_t SendTo(const std::string& host, uint16_t port, const std::vector<char>& data);
+	//TODO: Maybe implement recvfrom?
+
+};
+
+class MulticastSocket: public UDPSocket {
+public:
+	MulticastSocket(void):UDPSocket(){};
+
+	void Join(const std::string& ip, const std::string& iface="");
+	void Leave(const std::string& ip, const std::string& iface="");
+
+	void SetTTL(int ttl);
+	int GetTTL(void);
+
+	void SetLoopback(bool loop);
+	bool GetLoopback(void);
+
 };
 
 }

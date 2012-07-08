@@ -1,5 +1,6 @@
 TEST_APP=tests/dotest
-TEST_SRC=tests/test.cpp tests/StringTest.cpp tests/SocketTest.cpp tests/TestSimpleHttpClient.cpp
+TEST_SRC=tests/test.cpp tests/StringTest.cpp tests/SocketTest.cpp tests/TestSimpleHttpClient.cpp \
+	tests/TestNetUtils.cpp tests/TestFileUtils.cpp
 TEST_OBJS=$(TEST_SRC:%.cpp=%.o)
 
 test_pre:

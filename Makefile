@@ -2,7 +2,8 @@ TOP := $(shell pwd)
 
 LIB=libutils.a
 
-LIB_SRC=Condition.cpp Mutex.cpp Socket.cpp String.cpp Thread.cpp SimpleHttpClient.cpp
+LIB_SRC=Condition.cpp Mutex.cpp Socket.cpp String.cpp Thread.cpp SimpleHttpClient.cpp NetUtils.cpp \
+	FileUtils.cpp
 
 CXXFLAGS=-Wall -std=c++0x -I$(TOP)
 LDFLAGS=-pthread

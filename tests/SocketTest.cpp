@@ -14,6 +14,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION (SocketTest);
 using Utils::Socket;
 using Utils::TCPClient;
 using Utils::UDPSocket;
+using Utils::MulticastSocket;
 
 #include <iostream>
 
@@ -107,6 +108,114 @@ void SocketTest::testUDPSocketEcho()
 	CPPUNIT_ASSERT( hello == trd );
 	//cerr << "Sent ["<<hello<<"] got ["<<trd<<"]"<<endl;
 }
+
+void SocketTest::testUDPSocketSendTo() {
+	const char* group="239.255.255.250";
+	uint16_t port = 1920;
+
+	MulticastSocket rec;
+	rec.Bind(port);
+	rec.Join(group,"eth0");
+
+	UDPSocket s;
+	const char* buff="Im sent using sendto\r\n";
+	s.SendTo(group,port,buff,strlen(buff));
+
+	vector<char> data;
+	rec.AppendTo(data,512);
+
+	CPPUNIT_ASSERT_EQUAL(strlen(buff),data.size());
+}
+
+
+void SocketTest::testConnect()
+{
+	TCPClient t;
+
+	CPPUNIT_ASSERT_NO_THROW(t.Connect(ECHO_SERVER,7));
+
+	// Should not be able to reconnect(?)
+	CPPUNIT_ASSERT_THROW(t.Connect(ECHO_SERVER,7),std::runtime_error);
+
+	string hello("Hello\r\n");
+	size_t wt = t.Write(hello.c_str(),hello.length());
+	CPPUNIT_ASSERT_EQUAL(hello.length(), wt);
+
+	char buf[1024];
+	size_t rd = t.Read(buf,1024);
+	CPPUNIT_ASSERT_EQUAL(wt,rd);
+
+	string trd(buf,rd);
+	CPPUNIT_ASSERT( hello == trd );
+
+	UDPSocket s;
+	CPPUNIT_ASSERT_NO_THROW(s.Connect(ECHO_SERVER,7));
+
+	wt = s.Write(hello.c_str(),hello.length());
+	CPPUNIT_ASSERT_EQUAL(hello.length(), wt);
+
+	rd = s.Read(buf,1024);
+	CPPUNIT_ASSERT_EQUAL(wt,rd);
+
+	string tr2(buf,rd);
+	CPPUNIT_ASSERT( hello == tr2 );
+
+	// Should be able to reconnect an udp-socket
+	CPPUNIT_ASSERT_NO_THROW(s.Connect(ECHO_SERVER,7));
+}
+
+void SocketTest::testBind()
+{
+	UDPSocket s;
+
+	CPPUNIT_ASSERT_THROW(s.Bind(2233, "nonsens"),std::runtime_error);
+
+	CPPUNIT_ASSERT_NO_THROW(s.Bind(2233, "eth0"));
+
+	CPPUNIT_ASSERT_THROW(s.Bind(2233, "eth0"),std::runtime_error);
+
+}
+
+void SocketTest::testMulticast()
+{
+	const char* group="239.255.255.250";
+	uint16_t port = 1900;
+
+	MulticastSocket ms;
+
+	CPPUNIT_ASSERT_EQUAL(1, ms.GetTTL());
+	CPPUNIT_ASSERT_EQUAL(true, ms.GetLoopback() ) ;
+
+	ms.Bind(port);
+	CPPUNIT_ASSERT_THROW(ms.Join(group,"nonsens"),std::runtime_error);
+	CPPUNIT_ASSERT_NO_THROW( ms.Join(group,"eth0") );
+
+	CPPUNIT_ASSERT_NO_THROW( ms.Leave(group,"eth0") );
+}
+
+void SocketTest::testMulticastSend() {
+	const char* group="239.255.255.250";
+	uint16_t port = 1910;
+
+	MulticastSocket rec;
+	rec.Bind(port);
+	rec.Join(group,"eth0");
+
+	MulticastSocket send;
+	send.Connect(group, port);
+	const char* mess="Hello World!\r\n";
+	send.Write(mess, strlen(mess));
+
+	vector<char> data;
+	rec.AppendTo(data,512);
+
+	CPPUNIT_ASSERT_EQUAL(strlen(mess),data.size());
+
+}
+
+
+
+
 
 
 

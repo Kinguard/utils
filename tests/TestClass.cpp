@@ -1,14 +1,14 @@
 #include "TestClass.h"
 
-CPPUNIT_TEST_SUITE_REGISTRATION (TestClass);
+CPPUNIT_TEST_SUITE_REGISTRATION (TestXX);
 
-void TestClass::setUp(){
+void TestXX::setUp(){
 }
 
-void TestClass::tearDown(){
+void TestXX::tearDown(){
 }
 
-void TestClass::test()
+void TestXX::test()
 {
 	CPPUNIT_FAIL("Implement me!");
 }

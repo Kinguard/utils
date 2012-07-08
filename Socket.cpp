@@ -6,23 +6,28 @@
  */
 
 #include "Socket.h"
+#include "NetUtils.h"
 
 #include <sstream>
 
+#include <netinet/in.h>
+#include <sys/ioctl.h>
+#include <arpa/inet.h>
 #include <sys/types.h>
+#include <net/if.h>
 #include <unistd.h>
-#include <cstring>
 #include <netdb.h>
+#include <cstring>
 
 /*
  * Base class implementation for socket
  */
 
-Utils::Socket::Socket(void): type(-1), sock(-1)
+Utils::Socket::Socket(void): domain(-1),type(-1), sock(-1)
 {
 }
 
-Utils::Socket::Socket(int sockfd): type(-1),sock(sockfd)
+Utils::Socket::Socket(int sockfd): domain(-1), type(-1),sock(sockfd)
 {
 }
 
@@ -90,12 +95,25 @@ Utils::Socket::~Socket()
 	}
 }
 
+
 /*
  * InetSocket implementation
  */
 
-void Utils::InetSocket::connect(void)
+void Utils::InetSocket::Connect(const std::string& host, uint16_t port)
 {
+	if( this->connected && this->type == Socket::Stream ){
+		throw std::runtime_error("Already connected");
+	}
+
+	if( host != "" ){
+		this->host=host;
+	}
+
+	if( port != 0 ){
+		this->port = port;
+	}
+
 	struct addrinfo hints;
 	struct addrinfo *result, *rp;
 
@@ -107,7 +125,7 @@ void Utils::InetSocket::connect(void)
 
 	std::stringstream ss;
 
-	ss << port;
+	ss << this->port;
 
 	int res = getaddrinfo(this->host.c_str(), ss.str().c_str(), &hints, &result);
 	if( res != 0 ){
@@ -125,7 +143,40 @@ void Utils::InetSocket::connect(void)
 	}
 
 	freeaddrinfo(result);
+	this->connected = true;
 }
+
+void Utils::InetSocket::Bind(uint16_t port, const std::string& interface)
+{
+	if( this->bound ){
+		throw std::runtime_error("Socket already bound");
+	}
+
+	struct sockaddr_in addr;
+
+	bzero( &addr, sizeof( struct sockaddr_in ) );
+	addr.sin_family=AF_INET;
+
+	if( interface != "" ){
+		struct sockaddr ifaddr =  Utils::Net::GetIfAddr(interface) ;
+		addr.sin_addr.s_addr = ((struct sockaddr_in*) &ifaddr)->sin_addr.s_addr;
+	}else{
+		addr.sin_addr.s_addr = htonl(INADDR_ANY);
+	}
+
+	addr.sin_port=htons(port);
+
+	int optval = 1;
+	if( setsockopt(this->sock, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0){
+		throw ErrnoException("Failed to set reuse on socket");
+	}
+
+	if ( ::bind(this->sock, (struct sockaddr *) &addr, sizeof( addr ) ) < 0) {
+		throw ErrnoException("Failed to bind socket");
+	}
+	this->bound = true;
+}
+
 
 /*
  * TCP Client implementation
@@ -138,7 +189,7 @@ Utils::TCPClient::TCPClient(void): InetSocket(Socket::IPV4, Socket::Stream,"",0)
 Utils::TCPClient::TCPClient(const std::string& host, uint16_t port):
 		InetSocket(Socket::IPV4, Socket::Stream, host, port)
 {
-	this->connect();
+	this->Connect();
 }
 
 /*
@@ -152,5 +203,127 @@ Utils::UDPSocket::UDPSocket(void): InetSocket(Socket::IPV4, Socket::Datagram, ""
 Utils::UDPSocket::UDPSocket(const std::string& host, uint16_t port):
 		InetSocket(Socket::IPV4, Socket::Datagram, host, port)
 {
-	this->connect();
+	this->Connect();
 }
+
+size_t Utils::UDPSocket::SendTo(const std::string& host, uint16_t port,
+		const char* buff, size_t len)
+{
+	struct addrinfo hints;
+	struct addrinfo *result;
+	size_t written=0;
+
+	memset(&hints, 0, sizeof(struct addrinfo));
+	hints.ai_family = this->domain;
+	hints.ai_socktype = this->type;
+	hints.ai_flags = 0;
+	hints.ai_protocol = 0;
+
+	std::stringstream ss;
+
+	ss << port;
+
+	int res = getaddrinfo(host.c_str(), ss.str().c_str(), &hints, &result);
+	if( res != 0 ){
+		throw Utils::ErrnoException("Unable to resolve address");
+	}
+
+	if( result != NULL ){
+		written = sendto(this->sock, buff, len, 0,result->ai_addr, result->ai_addrlen);
+	}
+
+	freeaddrinfo(result);
+
+	return written;
+}
+
+size_t Utils::UDPSocket::SendTo(const std::string& host, uint16_t port,
+		const std::vector<char>& data)
+{
+	return this->SendTo(host, port, &data[0], data.size() );
+}
+
+/*
+ * Multicast socket implementation
+ */
+
+
+void Utils::MulticastSocket::Join(const std::string& ip, const std::string& iface)
+{
+	struct ip_mreq mreq;
+
+	mreq.imr_multiaddr.s_addr = inet_addr(ip.c_str());
+	if( iface == "" ){
+		mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+	}else{
+		//TODO: This might be wrong, possibly use IP_MULTICAST_IF ioctl instead
+		struct sockaddr ifaddr =  Utils::Net::GetIfAddr(iface) ;
+		mreq.imr_interface.s_addr = ((struct sockaddr_in*) &ifaddr)->sin_addr.s_addr;
+	}
+
+	if (setsockopt(this->sock,IPPROTO_IP,IP_ADD_MEMBERSHIP,&mreq,sizeof(mreq)) < 0) {
+		throw ErrnoException("Failed to join multicast group");
+	}
+
+}
+
+void Utils::MulticastSocket::Leave(const std::string& ip, const std::string& iface)
+{
+	struct ip_mreq mreq;
+
+	mreq.imr_multiaddr.s_addr = inet_addr(ip.c_str());
+	if( iface == "" ){
+		mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+	}else{
+		//TODO: This might be wrong, possibly use IP_MULTICAST_IF ioctl instead
+		struct sockaddr ifaddr =  Utils::Net::GetIfAddr(iface) ;
+		mreq.imr_interface.s_addr = ((struct sockaddr_in*) &ifaddr)->sin_addr.s_addr;
+	}
+
+	if (setsockopt(this->sock,IPPROTO_IP,IP_DROP_MEMBERSHIP,&mreq,sizeof(mreq)) < 0) {
+		throw ErrnoException("Failed to join multicast group");
+	}
+}
+
+void Utils::MulticastSocket::SetTTL(int ttl)
+{
+	if (setsockopt(this->sock,IPPROTO_IP,IP_MULTICAST_TTL,&ttl,sizeof(ttl)) < 0) {
+		throw ErrnoException("Failed to set multicast ttl");
+	}
+}
+
+int Utils::MulticastSocket::GetTTL(void)
+{
+	int ttl;
+	socklen_t optlen = sizeof(ttl);
+
+	if (getsockopt(this->sock,IPPROTO_IP,IP_MULTICAST_TTL,&ttl,&optlen) < 0) {
+		throw ErrnoException("Failed to get multicast ttl");
+	}
+
+	return ttl;
+}
+
+void Utils::MulticastSocket::SetLoopback(bool loop) {
+	int arg = loop;
+
+	if (setsockopt(this->sock,IPPROTO_IP,IP_MULTICAST_LOOP,&arg,sizeof(arg)) < 0) {
+		throw ErrnoException("Failed to set multicast loopback mode");
+	}
+}
+
+bool Utils::MulticastSocket::GetLoopback(void) {
+	int loop;
+	socklen_t optlen = sizeof(loop);
+
+	if (getsockopt(this->sock,IPPROTO_IP,IP_MULTICAST_LOOP,&loop,&optlen) < 0) {
+		throw ErrnoException("Failed to get multicast loopback mode");
+	}
+
+	return loop;
+}
+
+
+
+
+

@@ -1,5 +1,5 @@
-#ifndef SOCKETTEST_H_
-#define SOCKETTEST_H_
+#ifndef TESTSIMPLEHTTPC_H_
+#define TESTSIMPLEHTTPC_H_
 
 #include <cppunit/extensions/HelperMacros.h>
 

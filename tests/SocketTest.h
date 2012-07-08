@@ -18,6 +18,11 @@ class SocketTest: public CppUnit::TestFixture
 	CPPUNIT_TEST( testTCPClientEcho );
 	CPPUNIT_TEST( testUDPSocketConstructor );
 	CPPUNIT_TEST( testUDPSocketEcho );
+	CPPUNIT_TEST( testUDPSocketSendTo );
+	CPPUNIT_TEST( testConnect );
+	CPPUNIT_TEST( testBind );
+	CPPUNIT_TEST( testMulticast );
+	CPPUNIT_TEST( testMulticastSend );
 	CPPUNIT_TEST_SUITE_END();
 public:
 	void setUp();
@@ -30,6 +35,12 @@ public:
 
 	void testUDPSocketConstructor();
 	void testUDPSocketEcho();
+	void testUDPSocketSendTo();
+	void testConnect();
+	void testBind();
+
+	void testMulticast();
+	void testMulticastSend();
 };
 
 #endif /* SOCKETTEST_H_ */
