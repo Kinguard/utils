@@ -7,6 +7,8 @@
 
 
 #include "String.h"
+#include "FileUtils.h"
+
 #include <cstring>
 #include <cerrno>
 
@@ -74,6 +76,14 @@ list<string> Split(const string& str, const char* delim, ssize_t limit)
 	return items;
 }
 
+string UUID(void)
+{
+	if( File::FileExists("/proc/sys/kernel/random/uuid") ){
+		return File::GetContentAsString("/proc/sys/kernel/random/uuid");
+	}
+	//TODO: implement a fallback to create a UUID
+	throw std::runtime_error("Unable to construct uuid. Please implement fallback");
+}
 
 } // Namespace String
 

@@ -10,6 +10,7 @@ class StringTest: public CppUnit::TestFixture
 	CPPUNIT_TEST( testToUpper );
 	CPPUNIT_TEST( testToLower );
 	CPPUNIT_TEST( testSplit );
+	CPPUNIT_TEST( testUUID );
 	CPPUNIT_TEST_SUITE_END();
 public:
 	void setUp();
@@ -19,6 +20,7 @@ public:
 	void testToUpper();
 	void testToLower();
 	void testSplit();
+	void testUUID();
 };
 
 #endif /* SOCKETTEST_H_ */

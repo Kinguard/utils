@@ -89,3 +89,13 @@ void StringTest::testSplit()
 
 }
 
+void StringTest::testUUID()
+{
+#if 0
+	cout << "UUID: "<<String::UUID()<<endl;
+#endif
+
+	CPPUNIT_ASSERT_NO_THROW(String::UUID());
+	string uuid=String::UUID();
+	CPPUNIT_ASSERT( uuid.size() > 0 );
+}

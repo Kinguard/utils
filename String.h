@@ -11,6 +11,8 @@
 #include <string>
 #include <list>
 
+#include <sys/types.h>
+
 using namespace std;
 
 namespace Utils{
@@ -21,6 +23,7 @@ namespace String {
 	string ToUpper( string str );
 	string Chomp( const string& str);
 	list<string> Split(const string& str, const char* delim, ssize_t limit=-1);
+	string UUID(void);
 }
 
 std::string Errno(const std::string& str="");
