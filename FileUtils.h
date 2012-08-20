@@ -13,6 +13,8 @@
 
 #include "Exceptions.h"
 
+#include <sys/types.h>
+
 namespace Utils{
 namespace File{
 
