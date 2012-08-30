@@ -31,18 +31,30 @@ bool Utils::CircularReader::operator==(const CircularReader& cr) const
 	return this->id == cr.id;
 }
 
+bool Utils::CircularReader::Empty()
+{
+	this->cbuf.mutex.Lock();
+	bool empty = this->rp == this->cbuf.wp;
+	this->cbuf.mutex.Unlock();
+	return empty;
+}
+
 
 list< CircularData > Utils::CircularReader::Read() {
 	list< CircularData > l;
 	this->cbuf.mutex.Lock();
 
-	int dsize = this->cbuf.datasize;
-
+	if ( this->rp == this->cbuf.wp ){
+		//No data atm, wait for it
+		this->cbuf.mutex.Unlock();
+		this->cbuf.WaitForData();
+		this->cbuf.mutex.Lock();
+	}
 
 	while( this->rp != this->cbuf.wp ){
 		l.push_back(this->cbuf.data[this->rp]);
 
-		this->rp = (this->rp +1 )% dsize;
+		this->rp = (this->rp +1 )% this->cbuf.datasize;
 	}
 
 	this->cbuf.mutex.Unlock();
@@ -121,5 +133,17 @@ void Utils::CircularBuffer::PutReader(CircularReaderPtr rd)
 	this->mutex.Unlock();
 }
 
-Utils::CircularBuffer::~CircularBuffer() {
+void Utils::CircularBuffer::SignalReaders(void)
+{
+	this->hasdata.NotifyAll();
+}
+
+void Utils::CircularBuffer::WaitForData()
+{
+	this->hasdata.Wait();
+}
+
+
+Utils::CircularBuffer::~CircularBuffer()
+{
 }

@@ -13,6 +13,7 @@
 #include <map>
 #include <memory>
 
+#include "Condition.h"
 #include "Mutex.h"
 
 using namespace std;
@@ -37,6 +38,7 @@ public:
 	list< CircularData > Read();
 	virtual ~CircularReader();
 	bool operator==(const CircularReader& cr) const;
+	bool Empty();
 private:
 	int id;
 	int rp; //Read pointer into buffer
@@ -51,6 +53,7 @@ public:
 	CircularBuffer(int capacity);
 
 	void AddData(CircularData data);
+	void SignalReaders(void); // Tell readers we have new data
 
 	CircularReaderPtr GetReader();
 	void PutReader(CircularReaderPtr rd);
@@ -60,10 +63,14 @@ private:
 
 	void UpdateReaders(void);
 
+	void WaitForData();
+
 	Mutex mutex; // Mutex protecting pointer manipulations.
 	int wp; // Write pointer
 	int rp; // Internal read pointer used to initialize readers rp
 	int datasize; // Precompute size of data member
+
+	Condition hasdata;
 
 	vector< CircularData > data;
 	map< int, CircularReaderPtr > readers;

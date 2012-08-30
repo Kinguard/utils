@@ -48,9 +48,8 @@ void TestCircularBuffer::test()
 			//cout << it->value <<endl;
 		}
 
-		// Read again should yield empty
-		data = r->Read();
-		CPPUNIT_ASSERT_EQUAL(0,  (int)data.size());
+		// Should be empty
+		CPPUNIT_ASSERT_EQUAL(true,  r->Empty());
 
 		cb.PutReader(r);
 	}
