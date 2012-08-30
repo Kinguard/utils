@@ -1,11 +1,15 @@
 TOP := $(shell pwd)
 
+CXX = $(CROSS_COMPILE)g++
+CC = $(CROSS_COMPILE)gcc
+LD = $(CXX)
+
 LIB=libutils.a
 
 LIB_SRC=Condition.cpp Mutex.cpp Socket.cpp String.cpp Thread.cpp SimpleHttpClient.cpp NetUtils.cpp \
-	FileUtils.cpp
+	FileUtils.cpp CircularBuffer.cpp
 
-CXXFLAGS=-Wall -std=c++0x -I$(TOP)
+CXXFLAGS=-Wall -g -std=c++0x -I$(TOP)
 LDFLAGS=-pthread
 LDLIBS=
 

@@ -1,6 +1,6 @@
 TEST_APP=tests/dotest
 TEST_SRC=tests/test.cpp tests/StringTest.cpp tests/SocketTest.cpp tests/TestSimpleHttpClient.cpp \
-	tests/TestNetUtils.cpp tests/TestFileUtils.cpp
+	tests/TestNetUtils.cpp tests/TestFileUtils.cpp tests/TestCircularBuffer.cpp
 TEST_OBJS=$(TEST_SRC:%.cpp=%.o)
 
 test_pre:
@@ -12,7 +12,7 @@ test: test_pre $(LIB) $(TEST_APP)
 	$(TEST_APP)
 
 $(TEST_APP): $(TEST_OBJS) $(OBJS_OTHER)
-	@$(CXX) $(LDFLAGS) -o $(TEST_APP) $(TEST_OBJS) $(OBJS_OTHER) $(LDLIBS) -lcppunit
+	$(CXX) $(LDFLAGS) -o $(TEST_APP) $(TEST_OBJS) $(OBJS_OTHER) $(LDLIBS) -lcppunit
 
 test_clean:
 	@echo "Cleaning unit tests"
