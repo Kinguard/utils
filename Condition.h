@@ -8,14 +8,14 @@ namespace Utils{
 
 class Condition{
 private:
-    Mutex lock;
-    pthread_cond_t condition;
+	Mutex lock;
+	pthread_cond_t condition;
 public:
-    Condition();
-    void Wait();
-    void Notify();
-    void NotifyAll();
-    virtual ~Condition();
+	Condition();
+	void Wait();
+	void Notify();
+	void NotifyAll();
+	virtual ~Condition();
 
 };
 
