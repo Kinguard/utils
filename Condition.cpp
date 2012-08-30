@@ -3,37 +3,46 @@
 
 namespace Utils{
 
-Condition::Condition(){
-    pthread_cond_init(&condition,NULL);
+Condition::Condition()
+{
+    pthread_cond_init(&this->condition,NULL);
 }
 
-void Condition::Wait(){
-    lock.Lock();
+void Condition::Wait()
+{
+	this->lock.Lock();
 
-    if (pthread_cond_wait(&condition, lock.GetPThreadMutex())) {
+    if (pthread_cond_wait(&this->condition, this->lock.GetPThreadMutex())) {
+        this->lock.Unlock();
 		throw ErrnoException("Failed to wait on condition");
     }
 
-    lock.Unlock();
+    this->lock.Unlock();
 }
 
-void Condition::Notify(){
-    lock.Lock();
-    if (pthread_cond_signal(&condition)) {
+void Condition::Notify()
+{
+	this->lock.Lock();
+    if (pthread_cond_signal(&this->condition)) {
+        this->lock.Unlock();
 		throw ErrnoException("Failed to signal condition");
     }
-    lock.Unlock();
+    this->lock.Unlock();
 }
 
-void Condition::NotifyAll(){
-    lock.Lock();
-    if (pthread_cond_broadcast(&condition)) {
+void Condition::NotifyAll()
+{
+	this->lock.Lock();
+    if (pthread_cond_broadcast(&this->condition)) {
+        this->lock.Unlock();
 		throw ErrnoException("Failed to broadcast condition");
     }
-    lock.Unlock();
+    this->lock.Unlock();
 }
 
-Condition::~Condition(){
+Condition::~Condition()
+{
+	pthread_cond_destroy(&this->condition);
 }
 
 }

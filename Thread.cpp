@@ -6,11 +6,12 @@
 
 namespace Utils{
 
-Thread::Thread(bool detached):detached(detached),running(false){
+Thread::Thread(bool detached): thread(0), detached(detached),running(false){
 
 }
 
-void* Thread::BootstrapThread(void* obj){
+void* Thread::BootstrapThread(void* obj)
+{
     Thread* q=static_cast<Thread*>(obj);
     if (q) {
     	q->running=true;
@@ -21,12 +22,13 @@ void* Thread::BootstrapThread(void* obj){
 
 }
 
-bool Thread::isRunning(){
+bool Thread::isRunning()
+{
 	return this->running;
 }
 
-void Thread::Start(){
-
+void Thread::Start()
+{
 	int s = pthread_attr_init(&attr);
 	if( s != 0 ){
 		throw ErrnoException("Failed to init thread attribute");
@@ -43,19 +45,24 @@ void Thread::Start(){
 
 }
 
-void Thread::Kill(){
+void Thread::Kill()
+{
     this->Signal(SIGKILL);
 }
 
-void Thread::Yield(){
+void Thread::Yield()
+{
 	pthread_yield();
 }
 
-void Thread::Signal(int signum){
+void Thread::Signal(int signum)
+{
     pthread_kill( this->thread, signum );
 }
 
-Thread::~Thread(){
+Thread::~Thread()
+{
+	pthread_attr_destroy(&this->attr);
 }
 
 }

@@ -2,7 +2,6 @@
 #define MYTHREAD_H
 
 #include <pthread.h>
-#include "Condition.h"
 
 namespace Utils{
 
@@ -47,8 +46,6 @@ public:
     static void Yield();
 
     virtual ~Thread();
-
-    friend class Condition;
 
 };
 
