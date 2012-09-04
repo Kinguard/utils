@@ -23,6 +23,7 @@ namespace Utils{
 class CircularBuffer;
 class CircularReader;
 
+typedef shared_ptr<CircularBuffer> CircularBufferPtr;
 typedef shared_ptr<CircularReader> CircularReaderPtr;
 typedef shared_ptr<void> CircularData;
 
@@ -57,6 +58,7 @@ public:
 
 	CircularReaderPtr GetReader();
 	void PutReader(CircularReaderPtr rd);
+	int NumReaders();
 
 	virtual ~CircularBuffer();
 private:

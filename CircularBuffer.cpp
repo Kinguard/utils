@@ -138,6 +138,11 @@ void Utils::CircularBuffer::SignalReaders(void)
 	this->hasdata.NotifyAll();
 }
 
+int Utils::CircularBuffer::NumReaders()
+{
+	return this->readers.size();
+}
+
 void Utils::CircularBuffer::WaitForData()
 {
 	this->hasdata.Wait();
