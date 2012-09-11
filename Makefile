@@ -7,7 +7,7 @@ LD = $(CXX)
 LIB=libutils.a
 
 LIB_SRC=Condition.cpp Mutex.cpp Socket.cpp String.cpp Thread.cpp SimpleHttpClient.cpp NetUtils.cpp \
-	FileUtils.cpp CircularBuffer.cpp
+	FileUtils.cpp CircularBuffer.cpp Logger.cpp
 
 CXXFLAGS=-Wall -g -std=c++0x -I$(TOP)
 LDFLAGS=-pthread
