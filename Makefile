@@ -5,9 +5,9 @@ CC = $(CROSS_COMPILE)gcc
 LD = $(CXX)
 
 LIB=libutils.a
-
 LIB_SRC=Condition.cpp Mutex.cpp Socket.cpp String.cpp Thread.cpp SimpleHttpClient.cpp NetUtils.cpp \
 	FileUtils.cpp CircularBuffer.cpp Logger.cpp
+DESTDIR?=$(HOME)/Apps
 
 CXXFLAGS=-Wall -g -std=c++0x -I$(TOP)
 LDFLAGS=-pthread
@@ -17,6 +17,12 @@ OBJS=$(LIB_SRC:%.cpp=%.o)
 OBJS_OTHER=$(OBJS)
 
 all: pre $(LIB)
+
+install: all
+	install -d $(DESTDIR)/lib
+	install -d $(DESTDIR)/include/utils
+	install -m 0644 $(LIB) $(DESTDIR)/lib
+	install -m 0644 *.h $(DESTDIR)/include/utils
 
 $(LIB): $(OBJS)
 	@echo "Linking $(LIB)"
