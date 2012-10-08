@@ -6,8 +6,19 @@
 
 namespace Utils{
 
-Thread::Thread(bool detached): thread(0), detached(detached),running(false){
+Thread::Thread(bool detached): thread(0), detached(detached),running(false)
+{
+	int s = pthread_attr_init(&attr);
+	if( s != 0 ){
+		throw ErrnoException("Failed to init thread attribute");
+	}
 
+	if( this->detached ){
+		s = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+		if( s != 0 ){
+			throw ErrnoException("Failed to set detached state on thread attribute");
+		}
+	}
 }
 
 void* Thread::BootstrapThread(void* obj)
@@ -29,20 +40,7 @@ bool Thread::isRunning()
 
 void Thread::Start()
 {
-	int s = pthread_attr_init(&attr);
-	if( s != 0 ){
-		throw ErrnoException("Failed to init thread attribute");
-	}
-
-	if( this->detached ){
-		s = pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-		if( s != 0 ){
-			throw ErrnoException("Failed to set detached state on thread attribute");
-		}
-	}
-
     pthread_create( &this->thread, &this->attr, Thread::BootstrapThread, this);
-
 }
 
 void Thread::Kill()
