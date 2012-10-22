@@ -23,7 +23,7 @@ using namespace Utils;
 Utils::CircularReader::CircularReader(int readp, CircularBuffer& cbuf,int id):
 		id(id), rp(readp), cbuf(cbuf)
 {
-
+	cout << "Circular reader created:"<<this<<endl;
 }
 
 bool Utils::CircularReader::operator==(const CircularReader& cr) const
@@ -63,7 +63,7 @@ list< CircularData > Utils::CircularReader::Read() {
 
 Utils::CircularReader::~CircularReader()
 {
-
+	cout << "Circular reader destroyed:"<<this<<endl;
 }
 
 /*
@@ -83,6 +83,7 @@ void Utils::CircularBuffer::UpdateReaders(void) {
 		CircularReaderPtr r = x.second;
 
 		if( r->rp  == this->wp){
+			cout << "Overrun in reader!"<<endl;
 			r->rp = (r->rp + 1 ) % this->datasize;
 		}
 	}

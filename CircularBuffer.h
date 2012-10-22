@@ -25,7 +25,10 @@ class CircularReader;
 
 typedef shared_ptr<CircularBuffer> CircularBufferPtr;
 typedef shared_ptr<CircularReader> CircularReaderPtr;
-typedef shared_ptr<void> CircularData;
+typedef struct {
+	size_t size;
+	shared_ptr<void> data;
+}CircularData;
 
 
 class CircularReader{
