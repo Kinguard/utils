@@ -78,12 +78,14 @@ Utils::CircularBuffer::CircularBuffer(int capacity):
 }
 
 void Utils::CircularBuffer::UpdateReaders(void) {
-
+	static int ofcount = 0;
 	for(auto& x: this->readers){
 		CircularReaderPtr r = x.second;
 
 		if( r->rp  == this->wp){
-			cout << "Overrun in reader!"<<endl;
+			if( ( ++ofcount % 250 ) == 0 ){
+				cout << "!"<<flush;
+			}
 			r->rp = (r->rp + 1 ) % this->datasize;
 		}
 	}
