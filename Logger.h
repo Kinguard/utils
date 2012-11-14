@@ -102,6 +102,10 @@ public:
 		this->flush();
 	}
 
+// UCLIBC "bugfix"
+#ifndef CLOCK_MONOTONIC_RAW
+#define CLOCK_MONOTONIC_RAW 4
+#endif
 	void getTime(void){
 		timespec ts;
 		if( clock_gettime(CLOCK_MONOTONIC_RAW, &ts) ){
