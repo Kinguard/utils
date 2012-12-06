@@ -29,9 +29,11 @@ void TestCircularBuffer::test()
 		CircularReaderPtr r = cb.GetReader();
 
 		for( int i=0; i<10; i++){
-			CircularData item = CircularData(new TSBuffer);
+			CircularData item;
+			item.data = shared_ptr<void>( new TSBuffer );
+			item.size = sizeof( TSBuffer );
 
-			TSBuffer* it = (TSBuffer*)item.get();
+			TSBuffer* it = (TSBuffer*)item.data.get();
 			it->value = i;
 
 			cb.AddData(item);
@@ -43,7 +45,7 @@ void TestCircularBuffer::test()
 		// Verify that we have the last 5 elements
 		int i = 5;
 		for(auto x: data){
-			TSBuffer* it = (TSBuffer*) x.get();
+			TSBuffer* it = (TSBuffer*) x.data.get();
 			CPPUNIT_ASSERT( it->value == i++);
 			//cout << it->value <<endl;
 		}
@@ -63,7 +65,7 @@ void TestCircularBuffer::test()
 
 		int i = 5;
 		for(auto x2: d2){
-			TSBuffer* it = (TSBuffer*) x2.get();
+			TSBuffer* it = (TSBuffer*) x2.data.get();
 			CPPUNIT_ASSERT( it->value == i++);
 			//cout << it->value <<endl;
 		}
@@ -76,7 +78,7 @@ void TestCircularBuffer::test()
 
 		int i = 5;
 		for(auto x3: d3){
-			TSBuffer* it = (TSBuffer*) x3.get();
+			TSBuffer* it = (TSBuffer*) x3.data.get();
 			CPPUNIT_ASSERT( it->value == i++);
 			//cout << it->value <<endl;
 		}
