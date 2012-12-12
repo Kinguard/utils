@@ -16,11 +16,11 @@ namespace Utils {
 
 using namespace std;
 
-Shm::Shm(const string& path, size_t size, int token)
+Shm::Shm(const string& path, size_t size, int perm, int token)
 {
 	if ( ! File::FileExists( path ) )
 	{
-		throw std::runtime_error( "IPC file "+ path + " doesn't exist" );
+		File::Write( path, "", perm );
 	}
 
 	if ( ( this->token = ftok( path.c_str(), token ) ) == -1 )

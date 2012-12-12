@@ -17,7 +17,7 @@ namespace Utils {
 
 class Shm {
 public:
-	Shm(const std::string& path, size_t size, int token = 123 );
+	Shm(const std::string& path, size_t size, int perm = 0644, int token = 123 );
 	void Remove();
 	void* operator*();
 	void* Value();

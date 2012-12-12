@@ -15,7 +15,14 @@ void TestSHM::tearDown(){
 
 void TestSHM::test()
 {
-	CPPUNIT_ASSERT_THROW( Shm s("/tmp/testshm", 4096), std::runtime_error );
+
+	CPPUNIT_ASSERT_THROW( Shm s("/none/existant", 4096), std::runtime_error );
+
+	// FIle should be created
+	{
+		CPPUNIT_ASSERT_NO_THROW( Shm s("/tmp/testshm", 4096) );
+		File::Delete("/tmp/testshm");
+	}
 
 	File::Write("/tmp/shmtest", "", 0644);
 	CPPUNIT_ASSERT_NO_THROW( Shm s("/tmp/shmtest", 4096) );
