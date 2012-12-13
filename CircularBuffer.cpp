@@ -21,7 +21,7 @@ using namespace Utils;
  */
 
 Utils::CircularReader::CircularReader(int readp, CircularBuffer& cbuf,int id):
-		id(id), rp(readp), cbuf(cbuf)
+		id(id), rp(readp), cbuf(cbuf), eof(false)
 {
 	cout << "Circular reader created:"<<this<<endl;
 }
@@ -40,14 +40,27 @@ bool Utils::CircularReader::Empty()
 }
 
 
-list< CircularData > Utils::CircularReader::Read() {
-	list< CircularData > l;
+bool Utils::CircularReader::Read(list< CircularData >& l) {
+
+	if( this->eof )
+	{
+		return false;
+	}
+
 	this->cbuf.mutex.Lock();
 
 	if ( this->rp == this->cbuf.wp ){
 		//No data atm, wait for it
 		this->cbuf.mutex.Unlock();
+
 		this->cbuf.WaitForData();
+
+		// Got eof while waiting?
+		if( this->eof )
+		{
+			return false;
+		}
+
 		this->cbuf.mutex.Lock();
 	}
 
@@ -58,7 +71,13 @@ list< CircularData > Utils::CircularReader::Read() {
 	}
 
 	this->cbuf.mutex.Unlock();
-	return l;
+
+	return true;
+}
+
+bool Utils::CircularReader::Eof()
+{
+	return this->eof;
 }
 
 Utils::CircularReader::~CircularReader()
@@ -139,6 +158,24 @@ void Utils::CircularBuffer::PutReader(CircularReaderPtr rd)
 void Utils::CircularBuffer::SignalReaders(void)
 {
 	this->hasdata.NotifyAll();
+}
+
+void Utils::CircularBuffer::SetEof()
+{
+	this->mutex.Lock();
+
+	// Set all readers to EOF
+	for(auto& x: this->readers)
+	{
+		CircularReaderPtr r = x.second;
+
+		r->eof = true;
+	}
+
+	this->mutex.Unlock();
+
+	// Wake up any blocked readers
+	this->SignalReaders();
 }
 
 int Utils::CircularBuffer::NumReaders()

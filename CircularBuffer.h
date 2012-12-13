@@ -39,14 +39,16 @@ private:
 
 	CircularReader(int readp, CircularBuffer& cbuf, int id);
 public:
-	list< CircularData > Read();
+	bool Read(list< CircularData >& data);
 	virtual ~CircularReader();
 	bool operator==(const CircularReader& cr) const;
 	bool Empty();
+	bool Eof();
 private:
 	int id;
 	int rp; //Read pointer into buffer
 	CircularBuffer& cbuf; // Back reference to our buffer
+	bool eof;
 	friend class CircularBuffer;
 };
 
@@ -58,6 +60,7 @@ public:
 
 	void AddData(CircularData data);
 	void SignalReaders(void); // Tell readers we have new data
+	void SetEof(); // Set up eof and inform readers
 
 	CircularReaderPtr GetReader();
 	void PutReader(CircularReaderPtr rd);
