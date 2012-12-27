@@ -37,7 +37,7 @@ private:
 	CircularReader(const CircularReader& ) = delete;
 	CircularReader& operator=(const CircularReader&) = delete;
 
-	CircularReader(int readp, CircularBuffer& cbuf, int id);
+	CircularReader(int readp, CircularBuffer& cbuf, int id, bool eof);
 public:
 	bool Read(list< CircularData >& data);
 	virtual ~CircularReader();
@@ -83,6 +83,7 @@ private:
 	vector< CircularData > data;
 	map< int, CircularReaderPtr > readers;
 	int curCircularReaderID;
+	bool eof;
 	friend class CircularReader;
 };
 

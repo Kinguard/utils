@@ -17,6 +17,7 @@
 #include "Exceptions.h"
 
 #include <functional>
+#include <iostream>
 #include <iomanip>
 #include <sstream>
 #include <string>
@@ -43,19 +44,7 @@ private:
 	bool first;
 	std::ostringstream oss;
 
-	void doFirst(){
-		if( this->first ) {
-			if ( this->timestamp ){
-				Logger::getTime();
-				oss << " : ";
-			}
-			if( this->hasname ){
-				oss << this->name << ", ";
-			}
-
-			this->first = false;
-		}
-	}
+	void doFirst();
 
 public:
 
@@ -63,71 +52,53 @@ public:
 	Logger& operator=(const Logger&) = delete;
 	Logger(const Logger&) = delete;
 
-	Logger(std::function< void (const std::string&) > o, const std::string& name = "", bool timestamp = true):
-		out(o),name(name), timestamp(timestamp), first(true)
-	{
-		this->hasname = name!="";
-	}
+	Logger(std::function<void(const std::string&)> o, const std::string& name = "", bool timestamp = true);
 
-	Logger& operator<<(const std::string& msg){
-		this->doFirst();
-		oss << msg;
-		return *this;
-	}
+	Logger& operator <<(const std::string& msg);
 
-	Logger& operator<<(const int msg){
-		this->doFirst();
-		oss << msg;
-		return *this;
-	}
+	Logger& operator <<(const int msg);
 
 
-	Logger& operator<<(Manip& m){
-
-		m(*this);
-
-		return *this;
-	}
+	Logger& operator <<(Manip& m);
 
 
-	Logger& flush(){
-		oss << std::endl;
-		this->out(oss.str());
-		oss.str("");
-		this->first = true;
-		return *this;
-	}
+	Logger& flush();
 
-	~Logger(){
-		this->flush();
-	}
+	~Logger();
 
-// UCLIBC "bugfix"
-#ifndef CLOCK_MONOTONIC_RAW
-#define CLOCK_MONOTONIC_RAW 4
-#endif
-	void getTime(void){
-		timespec ts;
-		if( clock_gettime(CLOCK_MONOTONIC_RAW, &ts) ){
-			throw Utils::ErrnoException("Failed to get time");
-		}
-		oss.precision(6);
-		oss << std::fixed<< ts.tv_sec + (ts.tv_nsec/1e9);
-	}
+	void getTime(void);
 
 };
 
 class Endl: public Manip{
 public:
 	Endl(){}
-	virtual void operator()(Logger& logger){
+
+	virtual void operator()(Logger& logger)
+	{
 		logger.flush();
 	}
+
 	virtual ~Endl(){}
 };
 
 extern Endl end;
 
+class ClassWriter
+{
+public:
+	ClassWriter();
+
+	ClassWriter(const char* name, bool life = false);
+
+	virtual void o(const char* line);
+
+	virtual ~ClassWriter();
+
+private:
+	std::string name;
+	bool lifecycle;
+};
 
 } // End Namespace Utils
 

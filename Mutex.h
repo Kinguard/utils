@@ -3,8 +3,9 @@
 
 #include <pthread.h>
 
-class Condition;
 namespace Utils{
+
+class Condition;
 
 #define MUTEX_NORMAL 0
 #define MUTEX_RECURSIVE 1

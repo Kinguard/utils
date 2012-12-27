@@ -10,7 +10,7 @@ LIB_SRC=Condition.cpp Mutex.cpp Socket.cpp String.cpp Thread.cpp SimpleHttpClien
 DESTDIR?=$(HOME)/Apps
 
 CXXFLAGS=-Wall -g -std=c++0x -I$(TOP)
-LDFLAGS=-pthread
+LDFLAGS=-pthread -lrt
 LDLIBS=
 
 OBJS=$(LIB_SRC:%.cpp=%.o)

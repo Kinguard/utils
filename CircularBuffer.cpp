@@ -20,8 +20,8 @@ using namespace Utils;
  *
  */
 
-Utils::CircularReader::CircularReader(int readp, CircularBuffer& cbuf,int id):
-		id(id), rp(readp), cbuf(cbuf), eof(false)
+Utils::CircularReader::CircularReader(int readp, CircularBuffer& cbuf,int id, bool eof):
+		id(id), rp(readp), cbuf(cbuf), eof(eof)
 {
 	cout << "Circular reader created:"<<this<<endl;
 }
@@ -92,7 +92,8 @@ Utils::CircularReader::~CircularReader()
  */
 
 Utils::CircularBuffer::CircularBuffer(int capacity):
-		wp(0), rp(0), datasize(capacity+1), data(capacity+1), curCircularReaderID(0)
+		wp(0), rp(0), datasize(capacity+1), data(capacity+1), curCircularReaderID(0),
+		eof(false)
 {
 }
 
@@ -132,7 +133,9 @@ CircularReaderPtr Utils::CircularBuffer::GetReader() {
 
 	int newid = this->curCircularReaderID++;
 
-	CircularReaderPtr reader = CircularReaderPtr( new CircularReader(this->rp, *this, newid) );
+	CircularReaderPtr reader = CircularReaderPtr(
+			new CircularReader(this->rp, *this, newid, this->eof ) );
+
 	this->readers[newid] = reader;
 
 	this->mutex.Unlock();
@@ -163,6 +166,8 @@ void Utils::CircularBuffer::SignalReaders(void)
 void Utils::CircularBuffer::SetEof()
 {
 	this->mutex.Lock();
+
+	this->eof = true;
 
 	// Set all readers to EOF
 	for(auto& x: this->readers)

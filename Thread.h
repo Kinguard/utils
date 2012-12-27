@@ -37,7 +37,13 @@ public:
 
     virtual void Start();
 
+    virtual void PreRun() {}
+
     virtual void Run(){};
+
+    virtual void PostRun() {}
+
+    virtual int Join();
 
     virtual void Signal(int signum);
 

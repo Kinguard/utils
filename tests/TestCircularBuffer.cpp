@@ -38,7 +38,8 @@ void TestCircularBuffer::test()
 
 			cb.AddData(item);
 		}
-		list<CircularData> data = r->Read();
+		list<CircularData> data;
+		CPPUNIT_ASSERT( r->Read(data) );
 
 		CPPUNIT_ASSERT_EQUAL(5, (int)data.size());
 
@@ -59,7 +60,8 @@ void TestCircularBuffer::test()
 	{
 		// Get second reader
 		CircularReaderPtr r2 = cb.GetReader();
-		list<CircularData> d2 = r2->Read();
+		list<CircularData> d2;
+		CPPUNIT_ASSERT( r2->Read( d2 ) );
 
 		CPPUNIT_ASSERT_EQUAL(5, (int)d2.size());
 
@@ -72,7 +74,8 @@ void TestCircularBuffer::test()
 	}
 	{
 		// Check last reader
-		list<CircularData> d3 = r3->Read();
+		list<CircularData> d3;
+		CPPUNIT_ASSERT( r3->Read( d3  ) );
 
 		CPPUNIT_ASSERT_EQUAL(5, (int)d3.size());
 

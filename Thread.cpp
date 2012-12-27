@@ -23,13 +23,16 @@ Thread::Thread(bool detached): thread(0), detached(detached),running(false)
 
 void* Thread::BootstrapThread(void* obj)
 {
-    Thread* q=static_cast<Thread*>(obj);
-    if (q) {
-    	q->running=true;
-	    q->Run();
+	Thread* q=static_cast<Thread*>(obj);
+	if (q)
+	{
+		q->PreRun();
+		q->running=true;
+		q->Run();
 		q->running=false;
-    }
-    return NULL;
+		q->PostRun();
+	}
+	return NULL;
 
 }
 
@@ -56,6 +59,11 @@ void Thread::Yield()
 void Thread::Signal(int signum)
 {
     pthread_kill( this->thread, signum );
+}
+
+int Thread::Join()
+{
+	return pthread_join( this->thread, NULL);
 }
 
 Thread::~Thread()
