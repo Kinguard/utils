@@ -20,6 +20,7 @@ namespace File{
 
 bool FileExists(const std::string& path);
 bool DirExists(const std::string& path);
+bool SocketExists(const std::string& path);
 std::string GetContentAsString(const std::string& path);
 std::list<std::string> GetContent(const std::string& path);
 

@@ -19,29 +19,34 @@
 
 using namespace std;
 
-bool Utils::File::FileExists(const std::string& path)
+static bool do_stat(const std::string& path,mode_t mode )
 {
 	struct stat st;
 	if(stat(path.c_str(),&st)){
 		if( errno == ENOENT ){
 			return false;
 		}
-		throw ErrnoException("Failed to check file");
+		throw Utils::ErrnoException("Failed to check file");
 	}
-	return S_ISREG(st.st_mode);
+	return ((((st.st_mode)) & 0170000) & (mode));
+}
+
+bool Utils::File::FileExists(const std::string& path)
+{
+	return do_stat(path, S_IFREG);
 }
 
 bool Utils::File::DirExists(const std::string& path)
 {
-	struct stat st;
-	if(stat(path.c_str(),&st)){
-		if( errno == ENOENT ){
-			return false;
-		}
-		throw ErrnoException("Failed to check dir");
-	}
-	return S_ISDIR(st.st_mode);
+	return do_stat(path, S_IFDIR);
 }
+
+bool
+Utils::File::SocketExists ( const std::string& path )
+{
+	return do_stat(path, S_IFSOCK);
+}
+
 
 std::string Utils::File::GetContentAsString(const std::string& path)
 {
@@ -160,7 +165,8 @@ std::list<std::string> Utils::File::Glob(const std::string& pattern)
 
 void Utils::File::Delete(const std::string& path)
 {
-	if( Utils::File::FileExists( path ) ){
+	/* Socket, file or link */
+	if( do_stat(path, S_IFREG|S_IFSOCK|S_IFLNK) ){
 		if( unlink( path.c_str() ) < 0 ){
 			throw ErrnoException("Failed to delete file");
 		}

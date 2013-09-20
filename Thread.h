@@ -6,11 +6,21 @@
 namespace Utils{
 
 class Thread{
+
+public:
+	enum State {
+		UnInitialized,
+		Initialized,
+		Running,
+		HasRun,
+		Terminated
+	};
+
 private:
-     /**
-     * Threadid for worker thread.
-     */
-    pthread_t thread;
+	/**
+	* Threadid for worker thread.
+	*/
+	pthread_t thread;
 
 	/*
 	* Attributes for thread
@@ -22,36 +32,40 @@ private:
 	*/
 	bool detached;
 	/*
-	 * Is thread running/alive
-	 */
-	bool running;
+	* Is thread running/alive
+	*/
 
-    static void* BootstrapThread(void* inst);
+	static void* BootstrapThread(void* inst);
+
+	Thread::State state;
 
 protected:
 
 public:
-    Thread(bool detached=true);
 
-    bool isRunning();
+	Thread(bool detached=true);
 
-    virtual void Start();
+	bool isRunning();
 
-    virtual void PreRun() {}
+	Thread::State RunState();
 
-    virtual void Run(){};
+	virtual void Start();
 
-    virtual void PostRun() {}
+	virtual void PreRun() {}
 
-    virtual int Join();
+	virtual void Run(){};
 
-    virtual void Signal(int signum);
+	virtual void PostRun() {}
 
-    virtual void Kill();
+	virtual int Join();
 
-    static void Yield();
+	virtual void Signal(int signum);
 
-    virtual ~Thread();
+	virtual void Kill();
+
+	static void Yield();
+
+	virtual ~Thread();
 
 };
 

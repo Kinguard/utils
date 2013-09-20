@@ -14,22 +14,36 @@
 #include <sstream>
 
 #include <iostream>
+#include <iomanip>
+#include <cstring>
+
+using namespace std::placeholders;
 
 namespace Utils {
 
+using namespace Net;
+
 const string SimpleHttpClient::delim="\r\n\r\n";
 
-SimpleHttpClient::SimpleHttpClient(): host(""),path(""),port(0)
+SimpleHttpClient::SimpleHttpClient():
+		host(""),path(""),port(0), reqmethod(Http::GET), status(0)
 {
-	content.reserve(16384);
+	this->buffer.reserve(16*1024);
+
+	// Setup default writer
+	this->content.reserve(16*1024);
 }
 
 SimpleHttpClient::SimpleHttpClient(const string& host, const string& path, int port):
-		host(host), path(path),port(port)
+		host(host), path(path),port(port), reqmethod(Http::GET), status(0)
 {
+	this->buffer.reserve(16*1024);
+
+	// Setup default writer
+	this->content.reserve(16*1024);
 }
 
-void SimpleHttpClient::Fetch()
+void SimpleHttpClient::Get()
 {
 	if( port == 0 ){
 		throw std::runtime_error("Missing port");
@@ -40,10 +54,10 @@ void SimpleHttpClient::Fetch()
 	}
 
 	if( path == "" ){
-		throw std::runtime_error("Missing path");
+		this->path = "/";
 	}
 
-	TCPClient s(host, port);
+	TCPClientSocket s(host, port);
 
 	this->WriteRequest(s);
 
@@ -52,10 +66,46 @@ void SimpleHttpClient::Fetch()
 	this->ReadBody(s);
 }
 
-void SimpleHttpClient::WriteRequest(Utils::TCPClient& sock)
+void SimpleHttpClient::Head()
+{
+	if( port == 0 ){
+		throw std::runtime_error("Missing port");
+	}
+
+	if( host == ""){
+		throw std::runtime_error("Missing host");
+	}
+
+	if( path == "" ){
+		this->path = "/";
+	}
+
+	TCPClientSocket s(host, port);
+
+	this->reqmethod = Http::HEAD;
+	this->WriteRequest(s);
+
+	this->ReadHeaders(s);
+}
+
+
+void SimpleHttpClient::WriteRequest(Utils::TCPClientSocket& sock)
 {
 	stringstream request;
-	request << "GET "<< this->path <<" HTTP/1.1\r\n";
+
+	switch( this->reqmethod )
+	{
+	case Http::GET:
+		request << "GET "<< this->path <<" HTTP/1.1\r\n";
+		break;
+	case Http::HEAD:
+		request << "HEAD "<< this->path <<" HTTP/1.1\r\n";
+		break;
+	default:
+		throw std::runtime_error("Request method not implemented");
+		break;
+	}
+
 	request << "HOST: "<< this->host <<":"<< this->port <<"\r\n";
 	request << "Connection: close\r\n";
 	request << "\r\n";
@@ -63,14 +113,14 @@ void SimpleHttpClient::WriteRequest(Utils::TCPClient& sock)
 	sock.Write(request.str().c_str(), request.str().length());
 }
 
-void SimpleHttpClient::ReadHeaders(Utils::TCPClient& sock)
+void SimpleHttpClient::ReadHeaders(Utils::TCPClientSocket& sock)
 {
 	size_t rd = 0, found;
 	do{
-		rd += sock.AppendTo(this->content,50);
+		rd += sock.AppendTo(this->buffer,50);
 	}while(!(found = this->FindDelimiter()));
 
-	string header(&this->content[0],found);
+	string header(&this->buffer[0],found);
 	header += "\r\n";
 	list<string> headerlines = String::Split(header,"\r\n");
 
@@ -78,6 +128,15 @@ void SimpleHttpClient::ReadHeaders(Utils::TCPClient& sock)
 
 	// Get status line
 	string status = headerlines.front();
+
+	vector<string> sts;
+	String::Split( status, sts );
+	if( sts.size() > 1 )
+	{
+		this->httpversion = sts[0];
+		this->status = atoi( sts[1].c_str() );
+	}
+
 	headerlines.pop_front();
 
 	//TODO: parse status
@@ -96,13 +155,29 @@ void SimpleHttpClient::ReadHeaders(Utils::TCPClient& sock)
 	}
 #endif
 	// Remove header and try to read rest of request
-	this->content.erase(
-			this->content.begin(),
-			this->content.begin() + found + SimpleHttpClient::delim.size());
+	this->buffer.erase(
+			this->buffer.begin(),
+			this->buffer.begin() + found + SimpleHttpClient::delim.size());
 
 }
 
-void SimpleHttpClient::ReadBody(Utils::TCPClient& sock)
+void SimpleHttpClient::WriteData(vector<char>& v, size_t len)
+{
+	if( v.size() > 0 )
+	{
+		size_t cur_size = this->content.size();
+
+		this->content.resize( cur_size + len );
+
+		memcpy( &( this->content[cur_size] ), &(v[0]), len );
+
+		v.erase(v.begin(), v.begin()+len);
+		cout << "HTTP write "<<len<< " bytes. Buffer now: "<<v.size()<<endl;
+	}
+}
+
+
+void SimpleHttpClient::ReadBody(Utils::TCPClientSocket& sock)
 {
 	// Find out how to parse body.
 	// See RFC 2616 section 4.4
@@ -110,7 +185,7 @@ void SimpleHttpClient::ReadBody(Utils::TCPClient& sock)
 	if( this->headers.find("TRANSFER-ENCODING") != this->headers.end() ){
 		if( this->headers["TRANSFER-ENCODING"] == "chunked" ){
 			// Do chunked read
-			throw std::runtime_error("Chunked read not implemented yet");
+			this->ReadChunked( sock );
 		}else{
 			//Unsupported mode, do error
 			throw std::runtime_error(string("Unknown transfer encoding: ")+headers["TRANSFER-ENCODING"]);
@@ -121,15 +196,22 @@ void SimpleHttpClient::ReadBody(Utils::TCPClient& sock)
 		size_t to_read = atoll(this->headers["CONTENT-LENGTH"].c_str());
 
 		// Make sure we have enough space
-		if( this->content.capacity() < to_read){
-			this->content.reserve(to_read);
-		}
+		this->ReserveStorage( to_read );
 
 		// Remove part already read
-		to_read -= this->content.size();
+		to_read -= this->buffer.size();
+
+		// Write any initial data to store
+		this->WriteData( this->buffer, this->buffer.size() );
+
 		ssize_t rd = 0;
 		do{
-			rd = sock.AppendTo(this->content,to_read);
+			rd = sock.Read( this->buffer );
+			cout << "read "<<rd<<" bytes"<<endl;
+			if( rd > 0 )
+			{
+				this->WriteData( this->buffer, this->buffer.size() );
+			}
 			to_read -= rd;
 		}while( to_read > 0 && rd > 0);
 
@@ -143,16 +225,106 @@ void SimpleHttpClient::ReadBody(Utils::TCPClient& sock)
 	}
 }
 
+
+bool SimpleHttpClient::readChunk() {
+	const char* nl="\r\n";
+	bool found = false;
+
+	// Check for an initial \r\n and remove if present
+	if( this->buffer.size() > 1  && this->buffer[0] == '\r' && this->buffer[1] == '\n' )
+	{
+		this->buffer.erase(this->buffer.begin(), this->buffer.begin()+2 );
+		cout << "Erasing possible trailing newline. Size now is: "<<this->buffer.size()<<endl;
+	}
+
+	auto it = search( this->buffer.begin(), this->buffer.end(), nl, nl+2);
+
+	if( it != this->buffer.end() )
+	{
+		ssize_t pos = int(it-this->buffer.begin());
+		string s(&this->buffer[0],&this->buffer[0]+pos+2 /* =strlen(nl) */ );
+
+		size_t clen;
+		stringstream ss(s);
+		if ( ss >> std::setbase(16) >> clen )
+		{
+			// Found chunk length
+			cout << " Chunk length: "<<clen<<endl;
+
+			// Check if we have whole chunk in buffer
+			if( this->buffer.size() >= ( clen + s.length() )  ){
+
+				// Erase line from buffer.
+				this->buffer.erase(this->buffer.begin(), this->buffer.begin() + s.length() );
+
+				this->WriteData( this->buffer, clen );
+
+				found = true;
+			}
+		}else{
+			// Error!
+			//cout << "Got chunk len  "<<s;
+			HexDump(&this->buffer[0], this->buffer.size());
+			throw std::runtime_error("Failed to find chunk length");
+		}
+	}
+
+	return found;
+}
+
+void SimpleHttpClient::ReadChunked(Utils::TCPClientSocket& sock)
+{
+	ssize_t rd = 0;
+
+	do
+	{
+		rd = sock.AppendTo( this->buffer, 4096 );
+
+		try
+		{
+			// Read out as many chunks as possible
+			while( this->readChunk() );
+
+		}
+		catch( std::runtime_error& err )
+		{
+			cout << "Got error ["<< err.what()  << "]" << endl;
+			rd = 0;
+		}
+
+
+	}while( rd > 0 && this->buffer.size() < 0x20000 );
+
+}
+
+
+int SimpleHttpClient::getStatus() const {
+	return this->status;
+}
+
+const map<string, string>& SimpleHttpClient::Headers(void)
+{
+	return this->headers;
+}
+
+void SimpleHttpClient::ReserveStorage(size_t sz)
+{
+	if( this->content.capacity() < sz){
+		this->content.reserve(sz);
+	}
+}
+
+
 size_t SimpleHttpClient::FindDelimiter()
 {
 
-	auto fnd = search(this->content.begin(), this->content.end(),
+	auto fnd = search(this->buffer.begin(), this->buffer.end(),
 			SimpleHttpClient::delim.begin(),
 			SimpleHttpClient::delim.end());
 
-	size_t pos = int(fnd - this->content.begin());
+	size_t pos = int(fnd - this->buffer.begin());
 
-	return pos != this->content.size() ? pos : 0;
+	return pos != this->buffer.size() ? pos : 0;
 }
 
 void SimpleHttpClient::setHost(string host) {

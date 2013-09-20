@@ -23,7 +23,7 @@ using namespace Utils;
 Utils::CircularReader::CircularReader(int readp, CircularBuffer& cbuf,int id, bool eof):
 		id(id), rp(readp), cbuf(cbuf), eof(eof)
 {
-	cout << "Circular reader created:"<<this<<endl;
+	// cout << "Circular reader created:"<<this<<endl;
 }
 
 bool Utils::CircularReader::operator==(const CircularReader& cr) const
@@ -82,7 +82,7 @@ bool Utils::CircularReader::Eof()
 
 Utils::CircularReader::~CircularReader()
 {
-	cout << "Circular reader destroyed:"<<this<<endl;
+	//cout << "Circular reader destroyed:"<<this<<endl;
 }
 
 /*

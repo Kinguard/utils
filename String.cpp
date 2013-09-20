@@ -49,9 +49,10 @@ string Chomp( const string& str)
 	return pos==string::npos?str:str.substr(0, pos+1);
 }
 
-list<string> Split(const string& str, const char* delim, ssize_t limit)
+
+template<class OutputIterator>
+static void split(const string& str, OutputIterator it,  const char* delim, ssize_t limit)
 {
-	list<string> items;
 	int pos=-1,oldpos=0;
 	do {
 		pos=str.find(delim,oldpos);
@@ -66,14 +67,33 @@ list<string> Split(const string& str, const char* delim, ssize_t limit)
 
 			item = Trimmed(item," ");
 			if( item.length()>0){
-				items.push_back(item);
+				(*it) = item;
+				it++;
 				limit = limit == -1? -1: limit-1;
 			}
 		}
 		oldpos=pos+1;
     }while ( (limit == -1 || limit > 0) && oldpos>0 );
 
+}
+
+list<string> Split(const string& str, const char* delim, ssize_t limit)
+{
+	list<string> items;
+
+	split(str, back_inserter(items), delim, limit);
+
 	return items;
+}
+
+void Split(const string& str, vector<string>& vals, const char* delim,
+		ssize_t limit) {
+	split(str, back_inserter(vals), delim, limit);
+}
+
+void Split(const string& str, list<string>& vals, const char* delim,
+		ssize_t limit) {
+	split(str, back_inserter(vals), delim, limit);
 }
 
 string UUID(void)

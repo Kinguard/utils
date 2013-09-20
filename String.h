@@ -10,6 +10,7 @@
 
 #include <string>
 #include <list>
+#include <vector>
 
 #include <sys/types.h>
 
@@ -22,7 +23,9 @@ namespace String {
 	string ToLower( string str );
 	string ToUpper( string str );
 	string Chomp( const string& str);
-	list<string> Split(const string& str, const char* delim, ssize_t limit=-1);
+	list<string> Split(const string& str, const char* delim=" ", ssize_t limit=-1);
+	void Split(const string& str, vector<string>& vals, const char* delim=" ", ssize_t limit=-1);
+	void Split(const string& str, list<string>& vals, const char* delim=" ", ssize_t limit=-1);
 	string UUID(void);
 }
 

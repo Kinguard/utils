@@ -11,10 +11,14 @@ CPPUNIT_TEST_SUITE_REGISTRATION (SocketTest);
 
 #include "Socket.h"
 
-using Utils::Socket;
-using Utils::TCPClient;
-using Utils::UDPSocket;
-using Utils::MulticastSocket;
+using Utils::Net::Socket;
+using Utils::Net::TCPClientSocket;
+using Utils::Net::TCPServerSocket;
+using Utils::Net::UDPClientSocket;
+using Utils::Net::UDPServerSocket;
+using Utils::Net::MulticastSocket;
+using Utils::Net::UnixStreamClientSocket;
+using Utils::Net::UnixStreamServerSocket;
 
 #include <iostream>
 
@@ -30,10 +34,8 @@ void SocketTest::tearDown() {
 }
 
 void SocketTest::testSocketConstructor() {
-	Socket s;
-	CPPUNIT_ASSERT(s.getSocketFd() == -1);
 
-	CPPUNIT_ASSERT_THROW( Socket s(-1,-1), Utils::ErrnoException);
+	CPPUNIT_ASSERT_THROW( Socket s(Socket::NoDomain,Socket::NoType), Utils::ErrnoException);
 
 	CPPUNIT_ASSERT_NO_THROW( Socket s(Socket::Local, Socket::Stream) );
 	CPPUNIT_ASSERT_NO_THROW( Socket s(Socket::Local, Socket::Datagram) );
@@ -45,17 +47,14 @@ void SocketTest::testSocketConstructor() {
 
 void SocketTest::testTCPClientConstructor()
 {
-	TCPClient s;
-	// Should have a valid socket
-	CPPUNIT_ASSERT( s.getSocketFd() > -1);
 
-	CPPUNIT_ASSERT_NO_THROW(TCPClient t() );
-	CPPUNIT_ASSERT_NO_THROW(TCPClient t("www.google.se",80) );
+	CPPUNIT_ASSERT_NO_THROW(TCPClientSocket t() );
+	CPPUNIT_ASSERT_NO_THROW(TCPClientSocket t("www.google.se",80) );
 	//TODO: fix error cases not possible atm due to opendns stupid behavior
 }
 
 void SocketTest::testTCPClientEcho() {
-	TCPClient t(ECHO_SERVER, 7);
+	TCPClientSocket t(ECHO_SERVER, 7);
 	string hello("Hello\r\n");
 	char buf[1024];
 
@@ -85,18 +84,13 @@ void SocketTest::testTCPClientEcho() {
 
 void SocketTest::testUDPSocketConstructor()
 {
-	UDPSocket s;
-
-	// Should have a valid socket
-	CPPUNIT_ASSERT(s.getSocketFd() > -1);
-	CPPUNIT_ASSERT_NO_THROW(UDPSocket s() );
-	CPPUNIT_ASSERT_NO_THROW(UDPSocket s(ECHO_SERVER, 7) );
-
+	CPPUNIT_ASSERT_NO_THROW(UDPClientSocket s() );
+	CPPUNIT_ASSERT_NO_THROW(UDPClientSocket s(ECHO_SERVER, 7) );
 }
 
 void SocketTest::testUDPSocketEcho()
 {
-	UDPSocket s(ECHO_SERVER, 7);
+	UDPClientSocket s(ECHO_SERVER, 7);
 	string hello("Hello\r\n");
 	char buf[1024];
 
@@ -109,33 +103,64 @@ void SocketTest::testUDPSocketEcho()
 	//cerr << "Sent ["<<hello<<"] got ["<<trd<<"]"<<endl;
 }
 
+#include "Thread.h"
+#include "Condition.h"
+
+class Listen: public Utils::Thread {
+private:
+	Utils::Condition joined;
+	vector<char> data;
+public:
+	Listen(bool detached): Thread(detached)
+	{
+
+	}
+
+	void WaitJoined(void)
+	{
+		this->joined.Wait();
+	}
+
+	size_t size()
+	{
+		return this->data.size();
+	}
+
+	virtual void Run()
+	{
+		const char* group="239.255.255.250";
+		MulticastSocket rec("1920");
+
+		rec.Join(group,"eth0");
+		this->joined.Notify();
+		rec.AppendTo(data,512);
+	}
+};
+
+#include <unistd.h>
 void SocketTest::testUDPSocketSendTo() {
 	const char* group="239.255.255.250";
 	uint16_t port = 1920;
 
-	MulticastSocket rec;
-	rec.Bind(port);
-	rec.Join(group,"eth0");
+	Listen l(false);
 
-	UDPSocket s;
+	l.Start();
+	l.WaitJoined();
+	UDPClientSocket s;
 	const char* buff="Im sent using sendto\r\n";
 	s.SendTo(group,port,buff,strlen(buff));
 
-	vector<char> data;
-	rec.AppendTo(data,512);
+	l.Join();
 
-	CPPUNIT_ASSERT_EQUAL(strlen(buff),data.size());
+
+	CPPUNIT_ASSERT_EQUAL(strlen(buff),l.size());
+
 }
 
 
 void SocketTest::testConnect()
 {
-	TCPClient t;
-
-	CPPUNIT_ASSERT_NO_THROW(t.Connect(ECHO_SERVER,7));
-
-	// Should not be able to reconnect(?)
-	CPPUNIT_ASSERT_THROW(t.Connect(ECHO_SERVER,7),std::runtime_error);
+	TCPClientSocket t(ECHO_SERVER,7);
 
 	string hello("Hello\r\n");
 	size_t wt = t.Write(hello.c_str(),hello.length());
@@ -148,8 +173,7 @@ void SocketTest::testConnect()
 	string trd(buf,rd);
 	CPPUNIT_ASSERT( hello == trd );
 
-	UDPSocket s;
-	CPPUNIT_ASSERT_NO_THROW(s.Connect(ECHO_SERVER,7));
+	UDPClientSocket s(ECHO_SERVER,7);
 
 	wt = s.Write(hello.c_str(),hello.length());
 	CPPUNIT_ASSERT_EQUAL(hello.length(), wt);
@@ -159,50 +183,50 @@ void SocketTest::testConnect()
 
 	string tr2(buf,rd);
 	CPPUNIT_ASSERT( hello == tr2 );
-
-	// Should be able to reconnect an udp-socket
-	CPPUNIT_ASSERT_NO_THROW(s.Connect(ECHO_SERVER,7));
 }
 
 void SocketTest::testBind()
 {
-	UDPSocket s;
 
-	CPPUNIT_ASSERT_THROW(s.Bind(2233, "nonsens"),std::runtime_error);
+	CPPUNIT_ASSERT_THROW( UDPServerSocket("nonsens","2233"),std::runtime_error);
 
-	CPPUNIT_ASSERT_NO_THROW(s.Bind(2233, "eth0"));
-
-	CPPUNIT_ASSERT_THROW(s.Bind(2233, "eth0"),std::runtime_error);
+	CPPUNIT_ASSERT_NO_THROW( UDPServerSocket("eth0","2233") );
 
 }
 
 void SocketTest::testMulticast()
 {
 	const char* group="239.255.255.250";
-	uint16_t port = 1900;
 
-	MulticastSocket ms;
+	MulticastSocket ms("1900");
 
 	CPPUNIT_ASSERT_EQUAL(1, ms.GetTTL());
 	CPPUNIT_ASSERT_EQUAL(true, ms.GetLoopback() ) ;
 
-	ms.Bind(port);
 	CPPUNIT_ASSERT_THROW(ms.Join(group,"nonsens"),std::runtime_error);
 	CPPUNIT_ASSERT_NO_THROW( ms.Join(group,"eth0") );
 
 	CPPUNIT_ASSERT_NO_THROW( ms.Leave(group,"eth0") );
 }
 
+void
+SocketTest::testUnixClientSocket ()
+{
+#if 0
+	UnixClientSocket uc;
+	CPPUNIT_ASSERT_NO_THROW(UnixClientSocket u);
+	CPPUNIT_ASSERT_THROW(uc.Connect("sdsdds"),Utils::ErrnoException);
+#endif
+}
+
 void SocketTest::testMulticastSend() {
 	const char* group="239.255.255.250";
 	uint16_t port = 1910;
 
-	MulticastSocket rec;
-	rec.Bind(port);
+	MulticastSocket rec("1910");
 	rec.Join(group,"eth0");
 
-	MulticastSocket send;
-	send.Connect(group, port);
+	UDPClientSocket send(group, port);
 	const char* mess="Hello World!\r\n";
 	send.Write(mess, strlen(mess));
 
@@ -213,10 +237,117 @@ void SocketTest::testMulticastSend() {
 
 }
 
+class TcpServer: public Utils::Thread {
+private:
+	TCPServerSocket s;
+public:
+
+	TcpServer():Thread(),s("eth0",2233)
+	{
+
+	}
+
+	virtual void Run()
+	{
+		Utils::Net::SocketPtr c = s.Accept();
+		if( c )
+		{
+			vector<char> data;
+			c->AppendTo(data,512);
+
+			c->Write(data);
+		}else{
+			throw std::runtime_error("Accept failed");
+		}
+
+	}
+};
 
 
 
+void
+SocketTest::testTCPServer ()
+{
+	TcpServer s;
+
+	s.Start();
+
+	TCPClientSocket c("tor-desktop.local", 2233);
+	const char buf[] = "Hello World!";
+	c.Write( (void*) buf, strlen(buf ));
+
+	char rep[100];
+	c.Read(rep, sizeof(rep));
+
+	CPPUNIT_ASSERT_EQUAL(strlen(buf), strlen(rep));
+	string s1(buf),s2(rep);
+	CPPUNIT_ASSERT( s1 == s2 );
+
+}
 
 
+class UnixServer: public Utils::Thread {
+private:
+	Utils::Condition joined;
+	UnixStreamServerSocket s;
+public:
+
+	UnixServer():Thread(),s("/tmp/socktest")
+	{
+
+	}
+
+	void WaitJoined(void)
+	{
+		this->joined.Wait();
+	}
+
+
+	virtual void Run()
+	{
+		this->joined.Notify();
+		Utils::Net::SocketPtr c = s.Accept();
+		if( c )
+		{
+			vector<char> data;
+			c->AppendTo(data,512);
+
+			c->Write(data);
+		}else{
+			throw std::runtime_error("Accept failed");
+		}
+
+	}
+};
+
+
+void
+SocketTest::testUnixStreamSocket()
+{
+	CPPUNIT_ASSERT_THROW(UnixStreamServerSocket("/bla/kjkj") ,Utils::ErrnoException);
+
+	UnixServer s;
+
+	s.Start();
+	s.WaitJoined();
+	try{
+		UnixStreamClientSocket c("/tmp/socktest");
+		const char buf[] = "Hello World!";
+		size_t wt = c.Write( (void*) buf, strlen(buf ));
+
+		char rep[100];
+		size_t rd = c.Read(rep, sizeof(rep));
+		rep[rd] = '\0';
+
+		CPPUNIT_ASSERT_EQUAL(wt, rd);
+
+		CPPUNIT_ASSERT_EQUAL(strlen(buf), strlen(rep));
+		string s1(buf),s2(rep);
+		CPPUNIT_ASSERT( s1 == s2 );
+	}catch(Utils::ErrnoException& e)
+	{
+		std::cerr << "Failed to test socket "<<e.what()<<std::endl;
+	}
+}
 
 

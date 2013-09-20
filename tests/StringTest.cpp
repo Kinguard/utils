@@ -87,6 +87,14 @@ void StringTest::testSplit()
 	CPPUNIT_ASSERT_EQUAL((size_t)3,String::Split(" a b c d "," ",3).size());
 	CPPUNIT_ASSERT_EQUAL((size_t)4,String::Split("a b  c d "," ",4).size());
 
+	vector<string> v;
+	String::Split("a b  c d", v );
+	CPPUNIT_ASSERT_EQUAL( (size_t)4, v.size() );
+
+	list<string> lv;
+	String::Split("a b  c d", lv );
+	CPPUNIT_ASSERT_EQUAL( (size_t)4, lv.size() );
+
 }
 
 void StringTest::testUUID()

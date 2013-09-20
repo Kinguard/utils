@@ -11,22 +11,41 @@
 #include <string>
 #include <vector>
 #include <cstdint>
+#include <memory>
 
 #include "Exceptions.h"
 #include <sys/socket.h>
 #include <sys/types.h>
+#include <linux/un.h>
+#include <netdb.h>
 
 namespace Utils{
+
+namespace Net {
 
 class Socket{
 protected:
 	int domain;
 	int type;
 	int sock;
-
+	std::string hostpath;
+	std::string service;
 public:
-	Socket(void);
-	Socket(int domain, int type);
+	enum Domain{
+		NoDomain = -1,
+		Local = AF_LOCAL,
+		IPV4 = AF_INET,
+		IPV6 = AF_INET6
+	};
+
+	enum Type{
+		NoType = -1,
+		Stream = SOCK_STREAM,
+		Datagram = SOCK_DGRAM
+	};
+
+	Socket(enum Socket::Domain domain, enum Socket::Type type);
+	Socket(const std::string& hostpath, const std::string& service, enum Socket::Domain domain, enum Socket::Type type);
 	Socket(int sockfd);
 
 	int getSocketFd(){ return this->sock; }
@@ -44,64 +63,104 @@ public:
 	//TODO: Implement a close method and check for a closed connection in other methods.
 	virtual ~Socket();
 
-	enum{
-		Local = AF_LOCAL,
-		IPV4 = AF_INET,
-		IPV6 = AF_INET6
-	};
-
-	enum{
-		Stream = SOCK_STREAM,
-		Datagram = SOCK_DGRAM
-	};
-
 };
+typedef std::shared_ptr<Socket> SocketPtr;
 
-class InetSocket: public Socket{
+class ClientSocket: public Socket{
 public:
-	void Connect(const std::string& host="", uint16_t port=0);
-	void Bind(uint16_t port, const std::string& interface="");
+	ClientSocket(enum Socket::Domain domain, enum Socket::Type type);
+	ClientSocket(const std::string& hostpath, const std::string& service,
+			enum Socket::Domain domain, enum Socket::Type type);
+	virtual ~ClientSocket(){};
 protected:
-	InetSocket(): Socket(), port(-1),connected(false),bound(false){};
-	InetSocket(int domain, int type, const std::string& host, uint16_t port):
-		Socket(domain, type),host(host), port(port),
-		connected(false), bound(false)	{};
-private:
-	std::string host;
-	uint16_t port;
+	void Connect(void);
 	bool connected;
+};
+typedef std::shared_ptr<ClientSocket> ClientSocketPtr;
+
+class ServerSocket: public Socket{
+private:
+	struct timeval timeout;
+	bool timedout;
 	bool bound;
+protected:
+	void Bind(void);
+public:
+	ServerSocket(enum Socket::Domain domain, enum Socket::Type type);
+	ServerSocket(const std::string& hostpath, const std::string& service,
+			enum Socket::Domain domain, enum Socket::Type type);
+	virtual Utils::Net::SocketPtr Accept(void);
+	void SetTimeout(long sec, long usec);
+	bool TimedOut(void);
+	virtual ~ServerSocket(){};
 };
+typedef std::shared_ptr<ServerSocket> ServerSocketPtr;
 
-class TCPClient: public InetSocket{
+class TCPClientSocket: public ClientSocket{
 
 public:
-	TCPClient(void);
-	TCPClient(const std::string& host,uint16_t port);
+	TCPClientSocket(const std::string& host,uint16_t port);
 
+	virtual ~TCPClientSocket(){};
 };
+typedef std::shared_ptr<TCPClientSocket> TCPClientSocketPtr;
 
-class TCPServer: public Socket{
-
-};
-
-class UDPSocket: public InetSocket{
+class TCPServerSocket: public ServerSocket{
 public:
-	UDPSocket(void);
-	UDPSocket(const std::string& host,uint16_t port);
+	/*
+	 * Interface, interface or "" for alla (INADDR_ANY)
+	 */
+	TCPServerSocket(const std::string& interface,uint16_t port);
+
+	virtual ~TCPServerSocket(){};
+};
+typedef std::shared_ptr<TCPServerSocket> TCPServerSocketPtr;
+
+class UDPClientSocket: public ClientSocket{
+public:
+	/*
+	 * Only
+	 */
+	UDPClientSocket(void):ClientSocket(Socket::IPV4,Socket::Datagram){};
+	UDPClientSocket(const std::string& host, uint16_t port);
 
 	size_t SendTo(const std::string& host, uint16_t port, const char* buff, size_t len);
 	size_t SendTo(const std::string& host, uint16_t port, const std::vector<char>& data);
 	//TODO: Maybe implement recvfrom?
-
 };
+typedef std::shared_ptr<UDPClientSocket> UDPClientSocketPtr;
 
-class MulticastSocket: public UDPSocket {
+class UDPServerSocket: public ServerSocket{
 public:
-	MulticastSocket(void):UDPSocket(){};
+	/*
+	 * Hostpath, interface to bind to or empty
+	 */
+	UDPServerSocket(const std::string& interface, const std::string& service);
+	virtual Utils::Net::SocketPtr Accept(void);
+	virtual ~UDPServerSocket(){};
+};
+typedef std::shared_ptr<UDPServerSocket> UDPServerSocketPtr;
 
-	void Join(const std::string& ip, const std::string& iface="");
-	void Leave(const std::string& ip, const std::string& iface="");
+class MulticastSocket: public UDPServerSocket {
+public:
+
+	/*
+	 * service - Which port to listen on
+	 */
+	MulticastSocket(const std::string& service);
+
+	/*
+	 * interface - which IP to listen on
+	 * service - which port to use
+	 */
+	MulticastSocket(const std::string& interface, const std::string& service);
+
+	/*
+	 *  ip - Remote ip to join
+	 *  iface - Local interface to listen on
+	 */
+	void Join(const std::string& ip, const std::string& iface);
+	void Leave(const std::string& ip, const std::string& iface);
 
 	void SetTTL(int ttl);
 	int GetTTL(void);
@@ -110,9 +169,23 @@ public:
 	bool GetLoopback(void);
 
 };
+typedef std::shared_ptr<MulticastSocket> MulticastSocketPtr;
+
+class UnixStreamClientSocket: public ClientSocket {
+public:
+	UnixStreamClientSocket(const std::string& path);
+};
+typedef std::shared_ptr<UnixStreamClientSocket> UnixStreamClientSocketPtr;
+
+
+class UnixStreamServerSocket: public ServerSocket {
+public:
+	UnixStreamServerSocket(const std::string& path);
+
+	virtual ~UnixStreamServerSocket();
+};
+typedef std::shared_ptr<UnixStreamServerSocket> UnixStreamServerSocketPtr;
 
 }
-
-
-
+}
 #endif /* SOCKET_H_ */

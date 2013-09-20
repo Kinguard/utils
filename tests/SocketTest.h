@@ -16,6 +16,8 @@ class SocketTest: public CppUnit::TestFixture
 	CPPUNIT_TEST( testSocketConstructor );
 	CPPUNIT_TEST( testTCPClientConstructor );
 	CPPUNIT_TEST( testTCPClientEcho );
+	CPPUNIT_TEST( testTCPServer );
+	CPPUNIT_TEST( testUnixClientSocket );
 	CPPUNIT_TEST( testUDPSocketConstructor );
 	CPPUNIT_TEST( testUDPSocketEcho );
 	CPPUNIT_TEST( testUDPSocketSendTo );
@@ -23,6 +25,7 @@ class SocketTest: public CppUnit::TestFixture
 	CPPUNIT_TEST( testBind );
 	CPPUNIT_TEST( testMulticast );
 	CPPUNIT_TEST( testMulticastSend );
+	CPPUNIT_TEST( testUnixStreamSocket );
 	CPPUNIT_TEST_SUITE_END();
 public:
 	void setUp();
@@ -33,6 +36,10 @@ public:
 	void testTCPClientConstructor();
 	void testTCPClientEcho();
 
+	void testTCPServer();
+
+	void testUnixClientSocket();
+
 	void testUDPSocketConstructor();
 	void testUDPSocketEcho();
 	void testUDPSocketSendTo();
@@ -41,6 +48,9 @@ public:
 
 	void testMulticast();
 	void testMulticastSend();
+
+	void testUnixStreamSocket();
+
 };
 
 #endif /* SOCKETTEST_H_ */

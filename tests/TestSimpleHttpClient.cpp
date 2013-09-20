@@ -20,16 +20,18 @@ void TestSimpleHttpClient::test()
 	CPPUNIT_ASSERT_EQUAL(string(""),c.getPath());
 	CPPUNIT_ASSERT_EQUAL(0,c.getPort());
 
-	CPPUNIT_ASSERT_THROW(c.Fetch(),std::runtime_error);
+	CPPUNIT_ASSERT_THROW(c.Get(),std::runtime_error);
 
 	c.setPort(80);
-	CPPUNIT_ASSERT_THROW(c.Fetch(),std::runtime_error);
+	CPPUNIT_ASSERT_THROW(c.Get(),std::runtime_error);
 
 	c.setHost("www.google.se");
-	CPPUNIT_ASSERT_THROW(c.Fetch(),std::runtime_error);
 
+/* Should test path not set but now we default to / document if not specified
+	CPPUNIT_ASSERT_THROW(c.Fetch(),std::runtime_error);
+*/
 	c.setPath("/");
-	CPPUNIT_ASSERT_NO_THROW(c.Fetch());
+	CPPUNIT_ASSERT_NO_THROW(c.Get());
 	CPPUNIT_ASSERT_EQUAL(string("gws"),c.Header("SERVER"));
 
 	vector<char> body = c.Content();

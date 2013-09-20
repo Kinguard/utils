@@ -6,7 +6,7 @@
 
 namespace Utils{
 
-Thread::Thread(bool detached): thread(0), detached(detached),running(false)
+Thread::Thread(bool detached): thread(0), detached(detached),state( UnInitialized)
 {
 	int s = pthread_attr_init(&attr);
 	if( s != 0 ){
@@ -26,11 +26,13 @@ void* Thread::BootstrapThread(void* obj)
 	Thread* q=static_cast<Thread*>(obj);
 	if (q)
 	{
+		q->state = Initialized;
 		q->PreRun();
-		q->running=true;
+		q->state = Running;
 		q->Run();
-		q->running=false;
+		q->state = HasRun;
 		q->PostRun();
+		q->state = Terminated;
 	}
 	return NULL;
 
@@ -38,7 +40,7 @@ void* Thread::BootstrapThread(void* obj)
 
 bool Thread::isRunning()
 {
-	return this->running;
+	return this->state == Running;
 }
 
 void Thread::Start()
@@ -64,6 +66,11 @@ void Thread::Signal(int signum)
 int Thread::Join()
 {
 	return pthread_join( this->thread, NULL);
+}
+
+Thread::State Thread::RunState()
+{
+	return this->state;
 }
 
 Thread::~Thread()
