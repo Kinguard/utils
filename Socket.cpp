@@ -26,9 +26,8 @@ using namespace Utils::Net;
  * Base class implementation for socket
  */
 
-Socket::Socket(int sockfd): domain(Socket::NoDomain),type(Socket::NoType)
+Socket::Socket(int sockfd): domain(Socket::NoDomain),type(Socket::NoType),sock(sockfd)
 {
-	this->sock = sockfd;
 }
 
 Socket::Socket(enum Socket::Domain domain, enum Socket::Type type):
@@ -511,6 +510,87 @@ UnixStreamClientSocket::UnixStreamClientSocket(const std::string& path):
 {
 	this->Connect();
 }
+
+void
+UnixStreamClientSocket::SendFd ( int fd )
+{
+	int ret = 0;
+	struct iovec  iov[1];
+	struct msghdr msg = {0};
+
+	iov[0].iov_base = &ret;
+	iov[0].iov_len  = 1;
+
+	msg.msg_iov     = iov;
+	msg.msg_iovlen  = 1;
+	msg.msg_name    = 0;
+	msg.msg_namelen = 0;
+
+	char buf[CMSG_SPACE(sizeof(int))];
+	struct cmsghdr* h;
+
+	msg.msg_control = buf;
+	msg.msg_controllen = sizeof(buf);
+	msg.msg_flags = 0;
+
+	h = CMSG_FIRSTHDR(&msg);
+	h->cmsg_len   = CMSG_LEN(sizeof(int));
+	h->cmsg_level = SOL_SOCKET;
+	h->cmsg_type  = SCM_RIGHTS;
+	*((int*)CMSG_DATA(h)) = fd;
+
+	if ( sendmsg(this->sock, &msg, 0) < 0 ) {
+		throw ErrnoException("Unable to send fd");
+	}}
+
+int
+UnixStreamClientSocket::ReceiveFd ()
+{
+	int count;
+	int ret = 0;
+	struct iovec  iov[1];
+	struct msghdr msg;
+
+	iov[0].iov_base = &ret;	/* don't receive any data */
+	iov[0].iov_len  = 1;
+
+	msg.msg_iov = iov;
+	msg.msg_iovlen = 1;
+	msg.msg_name = NULL;
+	msg.msg_namelen = 0;
+	char buf[CMSG_SPACE(sizeof(int))];
+	struct cmsghdr* h;
+
+	msg.msg_control = buf;
+	msg.msg_controllen = sizeof(buf);
+	msg.msg_flags = 0;
+
+	h = CMSG_FIRSTHDR(&msg);
+	h->cmsg_len   = CMSG_LEN(sizeof(int));
+	h->cmsg_level = SOL_SOCKET;  /* Linux does not set these */
+	h->cmsg_type  = SCM_RIGHTS;  /* upon return */
+	*((int*)CMSG_DATA(h)) = -1;
+
+	if ( (count = recvmsg(this->sock, &msg, 0)) < 0 ) {
+		throw ErrnoException("Unable to receive message for fd");
+	} else {
+		h = CMSG_FIRSTHDR(&msg);	  /* can realloc? */
+		if ( h == NULL
+			|| h->cmsg_len    != CMSG_LEN(sizeof(int))
+			|| h->cmsg_level  != SOL_SOCKET
+			|| h->cmsg_type   != SCM_RIGHTS ) {
+			/* This should really never happen */
+			if ( h )
+				throw new std::runtime_error("Protocol failure");
+			else
+				throw new std::runtime_error("Protocol failure (NULL)");
+		} else {
+			ret = *((int*)CMSG_DATA(h));
+		}
+	}
+
+	return ret;}
+
 
 UnixStreamServerSocket::UnixStreamServerSocket(const std::string& path):
 			ServerSocket(path, "", Socket::Local, Socket::Stream)

@@ -26,6 +26,28 @@ using namespace std;
 
 #define ECHO_SERVER "tor-desktop"
 
+#include "Thread.h"
+#include "Condition.h"
+
+
+class TestServer: public Utils::Thread {
+protected:
+	Utils::Condition joined;
+public:
+	TestServer(bool detached): Thread(detached)
+	{
+
+	}
+
+	void WaitJoined(void)
+	{
+		this->joined.Wait();
+	}
+
+
+	virtual ~TestServer(){}
+};
+
 
 void SocketTest::setUp() {
 }
@@ -103,22 +125,12 @@ void SocketTest::testUDPSocketEcho()
 	//cerr << "Sent ["<<hello<<"] got ["<<trd<<"]"<<endl;
 }
 
-#include "Thread.h"
-#include "Condition.h"
-
-class Listen: public Utils::Thread {
+class Listen: public TestServer {
 private:
-	Utils::Condition joined;
 	vector<char> data;
 public:
-	Listen(bool detached): Thread(detached)
+	Listen(bool detached): TestServer(detached)
 	{
-
-	}
-
-	void WaitJoined(void)
-	{
-		this->joined.Wait();
 	}
 
 	size_t size()
@@ -209,16 +221,6 @@ void SocketTest::testMulticast()
 	CPPUNIT_ASSERT_NO_THROW( ms.Leave(group,"eth0") );
 }
 
-void
-SocketTest::testUnixClientSocket ()
-{
-#if 0
-	UnixClientSocket uc;
-	CPPUNIT_ASSERT_NO_THROW(UnixClientSocket u);
-	CPPUNIT_ASSERT_THROW(uc.Connect("sdsdds"),Utils::ErrnoException);
-#endif
-}
-
 void SocketTest::testMulticastSend() {
 	const char* group="239.255.255.250";
 	uint16_t port = 1910;
@@ -237,15 +239,12 @@ void SocketTest::testMulticastSend() {
 
 }
 
-class TcpServer: public Utils::Thread {
+class TcpServer: public TestServer {
 private:
 	TCPServerSocket s;
 public:
 
-	TcpServer():Thread(),s("eth0",2233)
-	{
-
-	}
+	TcpServer():TestServer(true),s("eth0",2233){}
 
 	virtual void Run()
 	{
@@ -263,8 +262,6 @@ public:
 	}
 };
 
-
-
 void
 SocketTest::testTCPServer ()
 {
@@ -277,8 +274,8 @@ SocketTest::testTCPServer ()
 	c.Write( (void*) buf, strlen(buf ));
 
 	char rep[100];
-	c.Read(rep, sizeof(rep));
-
+	size_t rd = c.Read(rep, sizeof(rep));
+	rep[rd]=0;
 	CPPUNIT_ASSERT_EQUAL(strlen(buf), strlen(rep));
 	string s1(buf),s2(rep);
 	CPPUNIT_ASSERT( s1 == s2 );
@@ -286,22 +283,14 @@ SocketTest::testTCPServer ()
 }
 
 
-class UnixServer: public Utils::Thread {
+class UnixServer: public TestServer {
 private:
-	Utils::Condition joined;
 	UnixStreamServerSocket s;
 public:
 
-	UnixServer():Thread(),s("/tmp/socktest")
+	UnixServer():TestServer(false),s("/tmp/socktest")
 	{
-
 	}
-
-	void WaitJoined(void)
-	{
-		this->joined.Wait();
-	}
-
 
 	virtual void Run()
 	{
@@ -313,10 +302,11 @@ public:
 			c->AppendTo(data,512);
 
 			c->Write(data);
-		}else{
+		}
+		else
+		{
 			throw std::runtime_error("Accept failed");
 		}
-
 	}
 };
 
@@ -349,5 +339,58 @@ SocketTest::testUnixStreamSocket()
 		std::cerr << "Failed to test socket "<<e.what()<<std::endl;
 	}
 }
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+class UnixFDTest: public TestServer {
+private:
+	UnixStreamServerSocket s;
+public:
+
+	UnixFDTest():TestServer(false),s("/tmp/socktest"){}
+
+	virtual void Run()
+	{
+		this->joined.Notify();
+		s.SetTimeout(1,0);
+		Utils::Net::SocketPtr c = s.Accept();
+		if( c )
+		{
+			int fd = open("tests/testfil.txt",O_RDONLY);
+			if( fd <0 )
+			{
+				throw std::runtime_error("Failed to open test file");
+			}
+
+			UnixStreamClientSocket *cs=static_cast<UnixStreamClientSocket *>(c.get());
+
+			cs->SendFd(fd);
+			close(fd);
+		}
+		else
+		{
+			throw std::runtime_error("Accept failed");
+		}
+	}
+};
 
 
+void
+SocketTest::testUnixFdPass()
+{
+	UnixFDTest s;
+
+	s.Start();
+	s.WaitJoined();
+
+	UnixStreamClientSocket c("/tmp/socktest");
+
+	int fd = c.ReceiveFd();
+	char buf[1024];
+	int rd = read(fd,buf,sizeof(buf));
+	CPPUNIT_ASSERT( rd > 0 );
+	buf[rd]=0;
+	CPPUNIT_ASSERT_EQUAL(0, strcmp(buf,"Hello World!"));
+	close(fd);
+}

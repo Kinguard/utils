@@ -174,6 +174,8 @@ typedef std::shared_ptr<MulticastSocket> MulticastSocketPtr;
 class UnixStreamClientSocket: public ClientSocket {
 public:
 	UnixStreamClientSocket(const std::string& path);
+	void SendFd(int fd);
+	int ReceiveFd();
 };
 typedef std::shared_ptr<UnixStreamClientSocket> UnixStreamClientSocketPtr;
 
