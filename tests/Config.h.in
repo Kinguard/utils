@@ -1,0 +1,6 @@
+#ifndef TESTUTILS_H
+#define TESTUTILS_H
+
+#define TESTUTILS_PATH "@TESTUTILS_PATH@"
+
+#endif

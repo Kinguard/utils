@@ -10,6 +10,7 @@
 CPPUNIT_TEST_SUITE_REGISTRATION (SocketTest);
 
 #include "Socket.h"
+#include "Config.h"
 
 using Utils::Net::Socket;
 using Utils::Net::TCPClientSocket;
@@ -357,7 +358,7 @@ public:
 		Utils::Net::SocketPtr c = s.Accept();
 		if( c )
 		{
-			int fd = open("tests/testfil.txt",O_RDONLY);
+			int fd = open(TESTUTILS_PATH"/testfil.txt",O_RDONLY);
 			if( fd <0 )
 			{
 				throw std::runtime_error("Failed to open test file");
