@@ -1,17 +1,21 @@
 cmake_minimum_required(VERSION 2.6)
 project( utils )
 
-SET(CPACK_GENERATOR "DEB")
-SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Tor Krill <tor@openproducts.se>") #required
- 
-INCLUDE(CPack)
-
 set (UTILS_VERSION_MAJOR 1)
 set (UTILS_VERSION_MINOR 0)
 set (UTILS_VERSION_PATCH 0)
 set (UTILS_VERSION "${UTILS_VERSION_MAJOR}.${UTILS_VERSION_MINOR}")
 set (UTILS_VERSION_FULL "${UTILS_VERSION}.${UTILS_VERSION_PATCH}")
 set (UTILS_APP_NAME "libutils")
+
+SET(CPACK_GENERATOR "DEB")
+SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Tor Krill <tor@openproducts.se>") #required
+SET(CPACK_PACKAGE_VERSION_MAJOR ${UTILS_VERSION_MAJOR})
+SET(CPACK_PACKAGE_VERSION_MINOR ${UTILS_VERSION_MINOR})
+SET(CPACK_PACKAGE_VERSION_PATCH ${UTILS_VERSION_PATCH})
+
+INCLUDE(CPack)
+
 
 configure_file (
 	"${PROJECT_SOURCE_DIR}/Config.h.in"
@@ -26,7 +30,9 @@ configure_file (
 
 set( utils_headers
 	CircularBuffer.h
+	ClassTools.h
 	Condition.h
+	Exceptions.h
 	FileUtils.h
 	Logger.h
 	Mutex.h
