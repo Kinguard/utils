@@ -54,4 +54,15 @@ Mutex::~Mutex(){
 	pthread_mutex_destroy(&this->lock);
 }
 
+ScopedLock::ScopedLock ( Mutex& mt ): m(mt)
+{
+	m.Lock();
+}
+
+ScopedLock::~ScopedLock ()
+{
+	m.Unlock();
+}
+
+
 }

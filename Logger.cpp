@@ -1,9 +1,10 @@
 #include "Logger.h"
 
 namespace Utils {
-
+/* Global instances */
 Endl end;
 
+Logger log([](const std::string& s){ std::cout << s; },"",false);
 
 /*
  * Implementation of Logger
@@ -11,11 +12,44 @@ Endl end;
 
 Logger::Logger(std::function<void(const std::string&)> o,
 		const std::string& name, bool timestamp) :
-		out(o), name(name), timestamp(timestamp), first(true)
+		out(o), name(name), timestamp(timestamp), first(true),
+		level(Logger::Error),lastlevel(Logger::Debug)
 {
 	this->hasname = name != "";
 }
 
+Logger&
+Logger::operator << ( LogLevel lev )
+{
+	this->lastlevel = lev;
+	return *this;
+}
+
+void
+Logger::SetLevel ( LogLevel level )
+{
+	this->level = level;
+}
+
+void
+Logger::SetLogName ( const std::string& name )
+{
+	this->name = name;
+	this->hasname = name != "";
+}
+
+void
+Logger::SetTimeStamping ( bool dotimestamp )
+{
+	this->timestamp = dotimestamp;
+}
+
+void
+Logger::SetOutputter ( std::function<void
+( const std::string& )> o )
+{
+	this->out = o;
+}
 
 inline void Logger::doFirst() {
 	if (this->first) {
@@ -62,15 +96,21 @@ Logger& Logger::operator <<(Manip& m) {
 }
 
 Logger& Logger::flush() {
-	oss << std::endl;
-	this->out(oss.str());
+	if( this->lastlevel <= this->level )
+	{
+		oss << std::endl;
+		this->out(oss.str());
+	}
 	oss.str("");
 	this->first = true;
 	return *this;
 }
 
 Logger::~Logger() {
-	this->flush();
+	if( ! this->first )
+	{
+		this->flush();
+	}
 }
 
 

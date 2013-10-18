@@ -36,17 +36,18 @@ public:
 };
 
 class Logger {
-private:
-	std::function< void (const std::string&) > out;
-	std::string name;
-	bool timestamp;
-	bool hasname;
-	bool first;
-	std::ostringstream oss;
-
-	void doFirst();
-
 public:
+
+	enum LogLevel{
+		Emerg,
+		Alert,
+		Crit,
+		Error,
+		Warning,
+		Notice,
+		Info,
+		Debug
+	};
 
 	Logger() = delete;
 	Logger& operator=(const Logger&) = delete;
@@ -58,16 +59,32 @@ public:
 
 	Logger& operator <<(const int msg);
 
-
 	Logger& operator <<(Manip& m);
 
+	Logger& operator <<(LogLevel lev);
 
 	Logger& flush();
+
+	void SetLevel(LogLevel level);
+
+	void SetLogName(const std::string& name);
+
+	void SetTimeStamping(bool dotimestamp);
+
+	void SetOutputter(std::function<void(const std::string&)> o);
 
 	~Logger();
 
 	void getTime(void);
-
+private:
+	std::function< void (const std::string&) > out;
+	std::string name;
+	bool timestamp;
+	bool hasname;
+	bool first;
+	std::ostringstream oss;
+	LogLevel level,lastlevel;
+	void doFirst();
 };
 
 class Endl: public Manip{
@@ -83,6 +100,7 @@ public:
 };
 
 extern Endl end;
+extern Logger log;
 
 class ClassWriter
 {

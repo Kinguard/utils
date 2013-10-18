@@ -3,6 +3,8 @@
 
 #include <pthread.h>
 
+#include "ClassTools.h"
+
 namespace Utils{
 
 class Condition;
@@ -23,6 +25,16 @@ public:
     virtual ~Mutex();
     friend class Condition;
 };
+
+class ScopedLock: public NoCopy{
+private:
+	Mutex& m;
+public:
+	ScopedLock(Mutex& mt);
+	virtual ~ScopedLock();
+
+};
+
 }
 
 #endif

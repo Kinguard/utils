@@ -380,6 +380,7 @@ public:
 void
 SocketTest::testUnixFdPass()
 {
+	unlink("/tmp/socktest");
 	UnixFDTest s;
 
 	s.Start();

@@ -37,6 +37,7 @@ set( utils_headers
 	Logger.h
 	Mutex.h
 	NetUtils.h
+	NetServer.h
 	Shm.h
 	SimpleHttpClient.h
 	Socket.h
@@ -51,6 +52,7 @@ set( utils_src
 	Logger.cpp
 	Mutex.cpp
 	NetUtils.cpp
+	NetServer.cpp
 	Shm.cpp
 	SimpleHttpClient.cpp
 	Socket.cpp

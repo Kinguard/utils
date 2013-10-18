@@ -6,7 +6,7 @@ LD = $(CXX)
 
 LIB=libutils.a
 LIB_SRC=Condition.cpp Mutex.cpp Socket.cpp String.cpp Thread.cpp SimpleHttpClient.cpp NetUtils.cpp \
-	FileUtils.cpp CircularBuffer.cpp Logger.cpp Shm.cpp
+	FileUtils.cpp CircularBuffer.cpp Logger.cpp Shm.cpp NetServer.cpp
 DESTDIR?=$(HOME)/Apps
 
 CXXFLAGS=-Wall -g -std=c++0x -I$(TOP)
