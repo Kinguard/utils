@@ -18,6 +18,7 @@ set( testutils_src
 	TestFileUtils.cpp
 	TestLogger.cpp
 	TestNetUtils.cpp
+	TestNetServer.cpp
 	TestShm.cpp
 	TestSimpleHttpClient.cpp
 	)

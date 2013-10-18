@@ -29,6 +29,7 @@ NetServer::Dispatch ( SocketPtr con )
 void
 NetServer::Run ()
 {
+	log << Logger::Debug << "Starting up" << end;
 	do
 	{
 		SocketPtr con = this->serv->Accept();
@@ -65,6 +66,7 @@ NetServer::Run ()
 		}
 
 	}while(!this->shutdown);
+	log << Logger::Debug << "Terminating" << end;
 }
 
 void
