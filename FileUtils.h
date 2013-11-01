@@ -9,6 +9,7 @@
 #define FILEUTILS_H_
 
 #include <string>
+#include <vector>
 #include <list>
 
 #include "Exceptions.h"
@@ -26,6 +27,9 @@ std::list<std::string> GetContent(const std::string& path);
 
 void Write(const std::string& path, const std::string& content, mode_t mode);
 void Write(const std::string& path, std::list<std::string>& content, mode_t mode);
+void Write(const std::string& path, const std::vector<unsigned char>& content, mode_t mode);
+
+void Read(const std::string& path, std::vector<unsigned char>& data);
 
 void MkDir(const std::string& path, mode_t mode);
 void MkPath(std::string path, mode_t mode);

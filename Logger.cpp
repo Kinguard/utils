@@ -2,9 +2,9 @@
 
 namespace Utils {
 /* Global instances */
-Endl end;
+Endl lend;
 
-Logger log([](const std::string& s){ std::cout << s; },"",false);
+Logger logg([](const std::string& s){ std::cout << s; },"",false);
 
 /*
  * Implementation of Logger

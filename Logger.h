@@ -99,8 +99,8 @@ public:
 	virtual ~Endl(){}
 };
 
-extern Endl end;
-extern Logger log;
+extern Endl lend;
+extern Logger logg;
 
 class ClassWriter
 {

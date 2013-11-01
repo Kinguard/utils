@@ -118,6 +118,60 @@ void Utils::File::Write(const std::string& path,
 	close(fd);
 }
 
+void
+Utils::File::Write ( const std::string& path,
+		const std::vector<unsigned char>& content, mode_t mode )
+{
+	int fd;
+	if((fd=open(path.c_str(),O_WRONLY|O_CREAT|O_TRUNC,mode))<0){
+		throw ErrnoException("Unable to open file for writing");
+	}
+
+	size_t write_total = 0, to_write = content.size();
+
+	while ( write_total < to_write )
+	{
+		ssize_t written = write(fd, &content[write_total], to_write - write_total );
+		if( written < 0 )
+		{
+			throw ErrnoException("Write failed");
+		}
+		write_total += written;
+	}
+
+	close(fd);
+}
+
+void
+Utils::File::Read ( const std::string& path, std::vector<unsigned char>& data )
+{
+	struct stat st;
+	if(stat(path.c_str(),&st)){
+		throw Utils::ErrnoException("Failed to stat file");
+	}
+	// Make sure we have room for data
+	data.resize(st.st_size);
+
+	int fd;
+	if((fd=open(path.c_str(),O_RDONLY))<0){
+		throw ErrnoException("Unable to open file '"+path+"' for reading");
+	}
+
+	size_t read_total = 0;
+	ssize_t bytes_read;
+	do
+	{
+		bytes_read = read(fd, &data[read_total], st.st_size - read_total);
+		if(bytes_read < 0 )
+		{
+			throw ErrnoException("Failed to read file '"+path+"'");
+		}
+	}while( bytes_read>0);
+
+	close(fd);
+}
+
+
 void Utils::File::MkDir(const std::string& path, mode_t mode)
 {
 	if(mkdir(path.c_str(),mode)){

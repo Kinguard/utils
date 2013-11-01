@@ -32,6 +32,18 @@ void TestFileUtils::testDirExists()
 	CPPUNIT_ASSERT( File::DirExists("nonsens") == false );
 }
 
+void
+TestFileUtils::testFileRead ()
+{
+	std::vector<unsigned char> test={1,2,3,4,5,6,7,8,9,10};
+	std::vector<unsigned char> verify;
+
+	CPPUNIT_ASSERT_NO_THROW( File::Write("tmpfiles/test-1.bin", test, 0666) );
+	CPPUNIT_ASSERT_NO_THROW( File::Read("tmpfiles/test-1.bin", verify) );
+	CPPUNIT_ASSERT_EQUAL( test.size(), verify.size() );
+	CPPUNIT_ASSERT( test == verify );
+}
+
 void TestFileUtils::testFileWrite()
 {
 	CPPUNIT_ASSERT_THROW( File::Write("tmpfiless/test-1.txt","Hello World!",0666), ErrnoException);

@@ -29,7 +29,7 @@ NetServer::Dispatch ( SocketPtr con )
 void
 NetServer::Run ()
 {
-	log << Logger::Debug << "Starting up" << end;
+	logg << Logger::Debug << "Starting up" << lend;
 	do
 	{
 		SocketPtr con = this->serv->Accept();
@@ -48,25 +48,25 @@ NetServer::Run ()
 				if( this->pendingreq == 0 )
 				{
 					this->shutdown = true;
-					log << Logger::Notice << "Server timed out. Terminating"<<end;
+					logg << Logger::Notice << "Server timed out. Terminating"<<lend;
 				}
 				else
 				{
-					log << Logger::Notice << "Server timed out,"
+					logg << Logger::Notice << "Server timed out,"
 							<<this->pendingreq
-							<< " requests left. Not terminating"<<end;
+							<< " requests left. Not terminating"<<lend;
 				}
 			}
 			else
 			{
 				//Todo: Error handling perhaps
-				log << Logger::Error << "Accept failed"<<end;
+				logg << Logger::Error << "Accept failed"<<lend;
 			}
 
 		}
 
 	}while(!this->shutdown);
-	log << Logger::Debug << "Terminating" << end;
+	logg << Logger::Debug << "Terminating" << lend;
 }
 
 void

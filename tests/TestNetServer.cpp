@@ -39,7 +39,7 @@ public:
 	virtual void Dispatch( SocketPtr con){
 		char recbuf[1024];
 		ssize_t r=con->Read(recbuf, 1024);
-		Utils::log << Utils::Logger::Debug << "Read ("<<r<<") ["<<recbuf<<"]"<<Utils::end;
+		Utils::logg << Utils::Logger::Debug << "Read ("<<r<<") ["<<recbuf<<"]"<<Utils::lend;
 		if(r>0){
 			con->Write(recbuf, r);
 		}
@@ -87,7 +87,7 @@ void TestNetServer::Test()
 	UnixStreamClientSocket client("/tmp/nstest");
 
 	std::string teststring("Hello World!");
-	log << Logger::Debug << "Writing server!"<<end;
+	logg << Logger::Debug << "Writing server!"<<lend;
 	client.Write(teststring.c_str(), teststring.length());
 	char buf[80];
 	ssize_t read = client.Read(buf,sizeof(buf));
