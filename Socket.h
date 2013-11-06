@@ -176,6 +176,7 @@ public:
 	UnixStreamClientSocket(const std::string& path);
 	void SendFd(int fd);
 	int ReceiveFd();
+	struct ucred GetCredentials(void);
 };
 typedef std::shared_ptr<UnixStreamClientSocket> UnixStreamClientSocketPtr;
 

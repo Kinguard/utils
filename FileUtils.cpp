@@ -119,19 +119,18 @@ void Utils::File::Write(const std::string& path,
 }
 
 void
-Utils::File::Write ( const std::string& path,
-		const std::vector<unsigned char>& content, mode_t mode )
+Utils::File::Write ( const std::string& path, const void* buf, size_t len,
+		mode_t mode )
 {
 	int fd;
 	if((fd=open(path.c_str(),O_WRONLY|O_CREAT|O_TRUNC,mode))<0){
 		throw ErrnoException("Unable to open file for writing");
 	}
-
-	size_t write_total = 0, to_write = content.size();
+	size_t write_total = 0, to_write = len;
 
 	while ( write_total < to_write )
 	{
-		ssize_t written = write(fd, &content[write_total], to_write - write_total );
+		ssize_t written = write(fd, (void*)((size_t)buf + write_total), to_write - write_total );
 		if( written < 0 )
 		{
 			throw ErrnoException("Write failed");
@@ -142,6 +141,8 @@ Utils::File::Write ( const std::string& path,
 	close(fd);
 }
 
+
+#if 0
 void
 Utils::File::Read ( const std::string& path, std::vector<unsigned char>& data )
 {
@@ -166,6 +167,39 @@ Utils::File::Read ( const std::string& path, std::vector<unsigned char>& data )
 		{
 			throw ErrnoException("Failed to read file '"+path+"'");
 		}
+		if( bytes_read > 0 )
+		{
+			read_total += bytes_read;
+		}
+
+	}while( bytes_read>0);
+
+	close(fd);
+}
+#endif
+
+void
+Utils::File::Read ( const std::string& path, const void* buf, size_t len )
+{
+	int fd;
+	if((fd=open(path.c_str(),O_RDONLY))<0){
+		throw ErrnoException("Unable to open file '"+path+"' for reading");
+	}
+
+	size_t read_total = 0;
+	ssize_t bytes_read;
+	do
+	{
+		bytes_read = read(fd, (void*)((size_t)buf + read_total), len - read_total);
+		if(bytes_read < 0 )
+		{
+			throw ErrnoException("Failed to read file '"+path+"'");
+		}
+		if( bytes_read > 0 )
+		{
+			read_total += bytes_read;
+		}
+
 	}while( bytes_read>0);
 
 	close(fd);

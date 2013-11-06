@@ -21,6 +21,7 @@ set( testutils_src
 	TestNetServer.cpp
 	TestShm.cpp
 	TestSimpleHttpClient.cpp
+	TestUserGroups.cpp
 	)
 include_directories( "${PROJECT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
 

@@ -589,7 +589,21 @@ UnixStreamClientSocket::ReceiveFd ()
 		}
 	}
 
-	return ret;}
+	return ret;
+}
+
+struct ucred
+Utils::Net::UnixStreamClientSocket::GetCredentials ( void )
+{
+	struct ucred cr;
+	socklen_t cr_len = sizeof(struct ucred);
+
+	if( getsockopt(this->sock, SOL_SOCKET, SO_PEERCRED, &cr, &cr_len) < 0 )
+	{
+		throw ErrnoException("Failed to get socket options");
+	}
+	return cr;
+}
 
 
 UnixStreamServerSocket::UnixStreamServerSocket(const std::string& path):

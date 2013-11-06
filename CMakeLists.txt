@@ -3,7 +3,7 @@ project( utils )
 
 set (UTILS_VERSION_MAJOR 1)
 set (UTILS_VERSION_MINOR 0)
-set (UTILS_VERSION_PATCH 3)
+set (UTILS_VERSION_PATCH 5)
 set (UTILS_VERSION "${UTILS_VERSION_MAJOR}.${UTILS_VERSION_MINOR}")
 set (UTILS_VERSION_FULL "${UTILS_VERSION}.${UTILS_VERSION_PATCH}")
 set (UTILS_APP_NAME "libutils")
@@ -43,6 +43,7 @@ set( utils_headers
 	Socket.h
 	String.h
 	Thread.h
+	UserGroups.h
 	)
 
 set( utils_src
@@ -58,6 +59,7 @@ set( utils_src
 	Socket.cpp
 	String.cpp
 	Thread.cpp
+	UserGroups.cpp
 	)
 
 add_definitions( -std=c++0x )

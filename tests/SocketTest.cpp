@@ -323,6 +323,7 @@ SocketTest::testUnixStreamSocket()
 	s.WaitJoined();
 	try{
 		UnixStreamClientSocket c("/tmp/socktest");
+
 		const char buf[] = "Hello World!";
 		size_t wt = c.Write( (void*) buf, strlen(buf ));
 
@@ -335,6 +336,14 @@ SocketTest::testUnixStreamSocket()
 		CPPUNIT_ASSERT_EQUAL(strlen(buf), strlen(rep));
 		string s1(buf),s2(rep);
 		CPPUNIT_ASSERT( s1 == s2 );
+
+		// In process should yield our ids
+		struct ucred uc = c.GetCredentials();
+		CPPUNIT_ASSERT_EQUAL( getuid(), uc.uid );
+		CPPUNIT_ASSERT_EQUAL( getgid(), uc.gid );
+		CPPUNIT_ASSERT_EQUAL( getpid(), uc.pid );
+
+
 	}catch(Utils::ErrnoException& e)
 	{
 		std::cerr << "Failed to test socket "<<e.what()<<std::endl;
