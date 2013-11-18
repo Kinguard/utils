@@ -283,7 +283,7 @@ ServerSocket::Accept ()
 	int selret;
 	FD_ZERO(&r_set);
 	FD_SET(this->sock,&r_set);
-	if((selret=select(this->sock+1,&r_set,NULL,NULL,timer)>0)){
+	if((selret=select(this->sock+1,&r_set,NULL,NULL,timer) ) > 0 ){
 		int clientsock;
 		struct sockaddr_un addr;
 		socklen_t addr_len=sizeof(sockaddr_un);
