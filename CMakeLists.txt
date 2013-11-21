@@ -3,7 +3,7 @@ project( utils )
 
 set (UTILS_VERSION_MAJOR 1)
 set (UTILS_VERSION_MINOR 0)
-set (UTILS_VERSION_PATCH 6)
+set (UTILS_VERSION_PATCH 7)
 set (UTILS_VERSION "${UTILS_VERSION_MAJOR}.${UTILS_VERSION_MINOR}")
 set (UTILS_VERSION_FULL "${UTILS_VERSION}.${UTILS_VERSION_PATCH}")
 set (UTILS_APP_NAME "libutils")
@@ -29,6 +29,7 @@ configure_file (
 )
 
 set( utils_headers
+	ArgParser.h
 	CircularBuffer.h
 	ClassTools.h
 	Condition.h
@@ -47,6 +48,7 @@ set( utils_headers
 	)
 
 set( utils_src
+	ArgParser.cpp
 	CircularBuffer.cpp
 	Condition.cpp
 	FileUtils.cpp

@@ -13,6 +13,7 @@ configure_file (
 set( testutils_src
 	SocketTest.cpp
 	StringTest.cpp
+	TestArgParse.cpp
 	TestCircularBuffer.cpp
 	test.cpp
 	TestFileUtils.cpp
