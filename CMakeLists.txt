@@ -66,6 +66,8 @@ set( utils_src
 
 add_definitions( -std=c++0x )
 
+# add_library( util_objs OBJECT ${utils_src} )
+add_library( utils_static STATIC ${utils_src} )
 add_library( utils SHARED ${utils_src} )
 
 target_link_libraries( utils -pthread -lrt)
@@ -75,6 +77,10 @@ set_target_properties( utils PROPERTIES
 		SOVERSION ${UTILS_VERSION_MAJOR}
 	)
 
+set_target_properties( utils_static PROPERTIES
+		OUTPUT_NAME utils
+	)
+
 add_subdirectory( tests )
 
 enable_testing()
@@ -82,4 +88,5 @@ add_test( NAME TestUtils COMMAND testutils )
 
 install( FILES ${utils_headers} DESTINATION include/libutils )
 install(FILES "${PROJECT_BINARY_DIR}/libutils.pc" DESTINATION lib/pkgconfig)
-install( TARGETS utils DESTINATION lib )
+install(FILES "${PROJECT_BINARY_DIR}/libutils.pc" DESTINATION share/pkgconfig)
+install( TARGETS utils utils_static DESTINATION lib )

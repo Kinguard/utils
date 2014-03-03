@@ -1,0 +1,11 @@
+libutils (1.0-1) testing; urgency=low
+
+  * Changed name of static library
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 03 Mar 2014 15:42:21 +0100
+
+libutils (1.0) testing; urgency=low
+
+  * Initial Release.
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 03 Mar 2014 10:42:08 +0100
