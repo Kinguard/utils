@@ -1,7 +1,7 @@
 Source: libutils
 Priority: extra
 Maintainer: Tor Krill <tor@openproducts.se>
-Build-Depends: debhelper (>= 8.0.0), cmake
+Build-Depends: debhelper (>= 8.0.0), cmake, libcppunit-dev
 Standards-Version: 3.9.4
 Section: libs
 #Vcs-Git: git://git.debian.org/collab-maint/libutils.git
@@ -10,7 +10,7 @@ Section: libs
 Package: libutils-dev
 Section: libdevel
 Architecture: any
-Depends: libutilsBROKEN (= ${binary:Version})
+Depends: libutils1 (= ${binary:Version})
 Description: <insert up to 60 chars description>
  <insert long description, indented with spaces>
 

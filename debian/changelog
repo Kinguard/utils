@@ -1,3 +1,15 @@
+libutils (1.0-3) testing; urgency=low
+
+  * Really fix deps now 
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 03 Mar 2014 17:35:54 +0100
+
+libutils (1.0-2) testing; urgency=low
+
+  * Fix faulty dependencies
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 03 Mar 2014 17:33:24 +0100
+
 libutils (1.0-1) testing; urgency=low
 
   * Changed name of static library
