@@ -30,6 +30,7 @@ configure_file (
 
 set( utils_headers
 	ArgParser.h
+	Application.h
 	CircularBuffer.h
 	ClassTools.h
 	Condition.h
@@ -49,6 +50,7 @@ set( utils_headers
 
 set( utils_src
 	ArgParser.cpp
+	Application.cpp
 	CircularBuffer.cpp
 	Condition.cpp
 	FileUtils.cpp

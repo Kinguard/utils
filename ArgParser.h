@@ -51,6 +51,8 @@ public:
 	bool HasReminder();
 	list<string> GetReminder();
 
+	string GetHelptext();
+
 	virtual ~ArgParser();
 
 private:

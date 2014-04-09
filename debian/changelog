@@ -1,3 +1,11 @@
+libutils (1.1-1) testing; urgency=low
+
+  * Initial add of Application classes
+  * Change argparser to accept parse with no args 
+  * Update ArgParser to provide generated helptext
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 08 Apr 2014 16:43:18 +0200
+
 libutils (1.0-3) testing; urgency=low
 
   * Really fix deps now 

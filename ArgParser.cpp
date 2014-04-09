@@ -1,6 +1,7 @@
 #include "ArgParser.h"
 
 #include <iostream>
+#include <sstream>
 
 Utils::ArgParser::ArgParser():map<string,string>()
 {
@@ -54,7 +55,8 @@ Utils::ArgParser::Parse(int argc, char ** const argv)
 	bool ret = true;
 	if( this->longopts.size() == 0 )
 	{
-		return false;
+		// Noting to do but this is no error
+		return true;
 	}
 
 	// Make sure last element in longopts is 0
@@ -131,6 +133,17 @@ Utils::ArgParser::GetReminder()
 	return this->reminder;
 }
 
+string Utils::ArgParser::GetHelptext()
+{
+	stringstream ss;
+	ss << "Options:"<< endl;
+	for( const Option& opt: this->opts )
+	{
+		ss << "  -" << opt.short_desc << "  --" << opt.long_desc << "\t"<< "["<< opt.default_val << "]\t: " << opt.helptext<< endl;
+	}
+
+	return ss.str();
+}
 
 Utils::ArgParser::~ArgParser()
 {
