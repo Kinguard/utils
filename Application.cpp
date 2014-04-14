@@ -88,18 +88,6 @@ void DaemonApplication::PostStartup()
 
 void DaemonApplication::PreMain()
 {
-	// Possibly changing uid/gid
-
-	if( setuid( User::UserToUID( this->options["user"] ) ) < 0 )
-	{
-		throw ErrnoException("Failed to setuid:" + this->options["user"]);
-	}
-
-	if( setgid( Group::GroupToGID( this->options["group"] ) )  < 0 )
-	{
-		throw ErrnoException("Failed to set group:" + this->options["group"] );
-	}
-
 	if( this->options["daemonize"] == "1" )
 	{
 
@@ -120,6 +108,19 @@ void DaemonApplication::PreMain()
 		of<<getpid()<<endl;
 		of.close();
 	}
+
+	// Possibly changing uid/gid
+
+	if( setgid( Group::GroupToGID( this->options["group"] ) )  < 0 )
+	{
+		throw ErrnoException("Failed to set group:" + this->options["group"] );
+	}
+
+	if( setuid( User::UserToUID( this->options["user"] ) ) < 0 )
+	{
+		throw ErrnoException("Failed to setuid:" + this->options["user"]);
+	}
+
 }
 
 
