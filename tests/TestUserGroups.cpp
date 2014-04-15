@@ -28,7 +28,7 @@ void TestUserGroups::TestUser()
 	CPPUNIT_ASSERT_THROW( User::Groups("unknown user"), ErrnoException );
 
 	list<pair<string,gid_t> > glist = User::Groups("root");
-	CPPUNIT_ASSERT_EQUAL( (long unsigned int)1, glist.size() );
+	CPPUNIT_ASSERT_EQUAL( (size_t)1, glist.size() );
 	CPPUNIT_ASSERT_EQUAL( std::string("root"), glist.front().first );
 	CPPUNIT_ASSERT_EQUAL( (unsigned int)0, glist.front().second );
 
