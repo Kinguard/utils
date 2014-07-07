@@ -275,6 +275,7 @@ SocketTest::testTCPServer ()
 	TcpServer s;
 
 	s.Start();
+	usleep(1000); // Give server time to start up
 
 	struct sockaddr addr=Utils::Net::GetIfAddr("eth0");
 	string ethaddr(inet_ntoa(((struct sockaddr_in *)&addr)->sin_addr));
