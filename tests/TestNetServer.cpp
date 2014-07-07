@@ -89,10 +89,12 @@ void TestNetServer::Test()
 	std::string teststring("Hello World!");
 	logg << Logger::Debug << "Writing server!"<<lend;
 	client.Write(teststring.c_str(), teststring.length());
-	char buf[80];
-	ssize_t read = client.Read(buf,sizeof(buf));
+	char buf[81];
+	ssize_t read = client.Read(buf,sizeof(buf)-1);
+	buf[read] = 0;
 
 	CPPUNIT_ASSERT(read > 0);
+	CPPUNIT_ASSERT_EQUAL( (size_t)read, teststring.length() );
 	std::string resp(buf);
 	CPPUNIT_ASSERT_EQUAL(teststring, resp);
 

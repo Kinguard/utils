@@ -10,6 +10,7 @@
 CPPUNIT_TEST_SUITE_REGISTRATION (SocketTest);
 
 #include "Socket.h"
+#include "NetUtils.h"
 #include "Config.h"
 
 using Utils::Net::Socket;
@@ -263,6 +264,11 @@ public:
 	}
 };
 
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 void
 SocketTest::testTCPServer ()
 {
@@ -270,7 +276,10 @@ SocketTest::testTCPServer ()
 
 	s.Start();
 
-	TCPClientSocket c("tor-desktop.local", 2233);
+	struct sockaddr addr=Utils::Net::GetIfAddr("eth0");
+	string ethaddr(inet_ntoa(((struct sockaddr_in *)&addr)->sin_addr));
+
+	TCPClientSocket c(ethaddr, 2233);
 	const char buf[] = "Hello World!";
 	c.Write( (void*) buf, strlen(buf ));
 
