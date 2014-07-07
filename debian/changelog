@@ -1,3 +1,11 @@
+libutils (1.2-1) testing; urgency=low
+
+  * Added simple ConfigFile class
+  * Add pkg-config to builddepends
+  * Added various dpkg artifacts to gitignore
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 07 Jul 2014 23:33:33 +0200
+
 libutils (1.1-1) testing; urgency=low
 
   * Initial add of Application classes
