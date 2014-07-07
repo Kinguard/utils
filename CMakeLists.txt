@@ -32,6 +32,7 @@ set( utils_headers
 	ArgParser.h
 	Application.h
 	CircularBuffer.h
+	ConfigFile.h
 	ClassTools.h
 	Condition.h
 	Exceptions.h
@@ -52,6 +53,7 @@ set( utils_src
 	ArgParser.cpp
 	Application.cpp
 	CircularBuffer.cpp
+	ConfigFile.cpp
 	Condition.cpp
 	FileUtils.cpp
 	Logger.cpp

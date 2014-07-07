@@ -1,0 +1,9 @@
+# A comment
+A line without value
+
+key 1 = val 1
+      
+key1 = val1
+key2 = A longer value
+key3 = 12
+
