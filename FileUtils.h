@@ -57,6 +57,12 @@ void ReadVector( const std::string& path, T& v)
 void MkDir(const std::string& path, mode_t mode);
 void MkPath(std::string path, mode_t mode);
 
+/* Aka, dirname */
+std::string GetPath(const std::string& s);
+/* Aka, basename */
+std::string GetFileName(const std::string& s);
+
+
 std::list<std::string> Glob(const std::string& pattern);
 
 void Delete(const std::string& path);

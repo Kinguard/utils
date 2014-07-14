@@ -266,3 +266,31 @@ void Utils::File::Delete(const std::string& path)
 		throw std::runtime_error("Unknown media to delete");
 	}
 }
+
+string Utils::File::GetPath(const string &s)
+{
+	string::size_type pos;
+
+	if( ( pos = s.find_last_of("/") ) != string::npos )
+	{
+		return s.substr(0 ,pos );
+	}
+	else
+	{
+		return s;
+	}
+}
+
+string Utils::File::GetFileName(const string &s)
+{
+	string::size_type pos;
+
+	if( ( pos = s.find_last_of("/") ) != string::npos )
+	{
+		return s.substr( pos + 1 );
+	}
+	else
+	{
+		return s;
+	}
+}
