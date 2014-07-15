@@ -48,15 +48,17 @@ Utils::File::SocketExists ( const std::string& path )
 }
 
 
-std::string Utils::File::GetContentAsString(const std::string& path)
+std::string Utils::File::GetContentAsString(const std::string& path, bool keeplinending)
 {
 	string ret;
+	string linend = keeplinending?"\n":"";
+
 	ifstream in(path.c_str(),ifstream::in);
 	string line;
 	while(in.good()){
 		getline(in,line);
 		if(line.size()>0 || !in.eof()){
-			ret+=line;
+			ret+=line+linend;
 		}
 	}
 	in.close();

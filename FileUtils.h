@@ -24,7 +24,7 @@ namespace File{
 bool FileExists(const std::string& path);
 bool DirExists(const std::string& path);
 bool SocketExists(const std::string& path);
-std::string GetContentAsString(const std::string& path);
+std::string GetContentAsString(const std::string& path, bool keeplinending=false);
 std::list<std::string> GetContent(const std::string& path);
 
 void Write(const std::string& path, const std::string& content, mode_t mode);
