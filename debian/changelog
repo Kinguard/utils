@@ -1,3 +1,9 @@
+libutils (1.4-2) testing; urgency=low
+
+  * Dont put spaces around = in config write
+
+ -- Tor Krill <tor@openproducts.se>  Sun, 27 Jul 2014 09:53:23 +0200
+
 libutils (1.4-1) testing; urgency=low
 
   * Add option to keep line endings when read file to string

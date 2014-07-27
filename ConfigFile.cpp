@@ -98,7 +98,7 @@ string ConfigFile::ToString()
 
 	for(auto it = this->cbegin(); it != this->end(); it++)
 	{
-		ss << (*it).first << " = " << (*it).second <<endl;
+		ss << (*it).first << "=" << (*it).second <<endl;
 	}
 	return ss.str();
 }
