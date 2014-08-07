@@ -1,3 +1,9 @@
+libutils (1.5-1) vili; urgency=low
+
+  * Add simple regex class
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 07 Aug 2014 22:23:35 +0200
+
 libutils (1.4-2) testing; urgency=low
 
   * Dont put spaces around = in config write

@@ -21,6 +21,7 @@ set( testutils_src
 	TestLogger.cpp
 	TestNetUtils.cpp
 	TestNetServer.cpp
+	TestRegex.cpp
 	TestShm.cpp
 	TestSimpleHttpClient.cpp
 	TestUserGroups.cpp

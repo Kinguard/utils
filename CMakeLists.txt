@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 project( utils )
 
 set (UTILS_VERSION_MAJOR 1)
-set (UTILS_VERSION_MINOR 2)
+set (UTILS_VERSION_MINOR 5)
 set (UTILS_VERSION_PATCH 0)
 set (UTILS_VERSION "${UTILS_VERSION_MAJOR}.${UTILS_VERSION_MINOR}")
 set (UTILS_VERSION_FULL "${UTILS_VERSION}.${UTILS_VERSION_PATCH}")
@@ -41,6 +41,7 @@ set( utils_headers
 	Mutex.h
 	NetUtils.h
 	NetServer.h
+	Regex.h
 	Shm.h
 	SimpleHttpClient.h
 	Socket.h
@@ -60,6 +61,7 @@ set( utils_src
 	Mutex.cpp
 	NetUtils.cpp
 	NetServer.cpp
+	Regex.cpp
 	Shm.cpp
 	SimpleHttpClient.cpp
 	Socket.cpp
