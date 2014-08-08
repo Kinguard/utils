@@ -9,7 +9,7 @@ Regex::Regex() : valid(false)
 {
 }
 
-Regex::Regex(const string &pattern, bool insensitive)
+Regex::Regex(const string &pattern, bool insensitive): Regex()
 {
 	this->Compile( pattern, insensitive );
 }
