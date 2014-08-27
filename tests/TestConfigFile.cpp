@@ -7,6 +7,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION ( TestConfigFile );
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <fstream>
 
 using namespace std;
 
@@ -75,15 +76,24 @@ int cp(const char *from, const char *to)
 
 void TestConfigFile::setUp()
 {
-	unlink("test.cfg");
-	if( cp(TESTUTILS_PATH"/test.cfg.orig", "test.cfg") < 0 )
-	{
-		throw runtime_error("Failed to set up environment");
-	}
+	ofstream ofs("test.cfg");
+
+	ofs << "# A comment\n"
+		<< "A line without value\n"
+		<< "\n"
+		<< "key 1 = val 1\n"
+		<< "\n"
+		<< "key1 = val1\n"
+		<< "key2 = A longer value\n"
+		<< "key3 = 12\n"
+		<< "\n";
+	ofs.close();
+
 }
 
 void TestConfigFile::tearDown()
 {
+	unlink("test.cfg");
 }
 
 void TestConfigFile::Test()
