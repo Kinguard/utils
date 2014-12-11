@@ -25,6 +25,7 @@ set( testutils_src
 	TestRegex.cpp
 	TestShm.cpp
 	TestSimpleHttpClient.cpp
+	TestTimer.cpp
 	TestUserGroups.cpp
 	)
 include_directories( "${PROJECT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")

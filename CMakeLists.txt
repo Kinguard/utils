@@ -48,6 +48,7 @@ set( utils_headers
 	Socket.h
 	String.h
 	Thread.h
+	Timer.h
 	UserGroups.h
 	)
 
@@ -69,6 +70,7 @@ set( utils_src
 	Socket.cpp
 	String.cpp
 	Thread.cpp
+	Timer.cpp
 	UserGroups.cpp
 	)
 
