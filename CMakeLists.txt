@@ -41,6 +41,7 @@ set( utils_headers
 	Mutex.h
 	NetUtils.h
 	NetServer.h
+	Process.h
 	Regex.h
 	Shm.h
 	SimpleHttpClient.h
@@ -61,6 +62,7 @@ set( utils_src
 	Mutex.cpp
 	NetUtils.cpp
 	NetServer.cpp
+	Process.cpp
 	Regex.cpp
 	Shm.cpp
 	SimpleHttpClient.cpp
