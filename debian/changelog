@@ -1,3 +1,11 @@
+libutils (1.5.1-1) vili; urgency=low
+
+  * Add Process functions
+  * Add new timer class
+  * Minor bugfix on NoCopy class
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 12 Dec 2014 14:01:56 +0100
+
 libutils (1.5-2) vili; urgency=low
 
   * Initialize Regex class correctly.
