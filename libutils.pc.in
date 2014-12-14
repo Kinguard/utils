@@ -5,7 +5,7 @@ includedir=${prefix}/include
 
 Name: libutils
 Description: Utility library with assorted functionality
-Version: @UTILS_VERSION@
+Version: @UTILS_VERSION_FULL@
 Libs: -L${libdir} -lutils -pthread -lrt
 Cflags: -I${includedir}
 
