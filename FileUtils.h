@@ -22,6 +22,7 @@ namespace Utils{
 namespace File{
 
 bool FileExists(const std::string& path);
+bool LinkExists(const std::string& path);
 bool DirExists(const std::string& path);
 bool SocketExists(const std::string& path);
 std::string GetContentAsString(const std::string& path, bool keeplinending=false);
