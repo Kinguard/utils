@@ -25,6 +25,7 @@ set( testutils_src
 	TestRegex.cpp
 	TestShm.cpp
 	TestSimpleHttpClient.cpp
+	TestStateMachine.cpp
 	TestTimer.cpp
 	TestUserGroups.cpp
 	)

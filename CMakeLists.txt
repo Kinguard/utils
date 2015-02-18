@@ -46,6 +46,7 @@ set( utils_headers
 	Shm.h
 	SimpleHttpClient.h
 	Socket.h
+	StateMachine.h
 	String.h
 	Thread.h
 	Timer.h
@@ -68,6 +69,7 @@ set( utils_src
 	Shm.cpp
 	SimpleHttpClient.cpp
 	Socket.cpp
+	StateMachine.cpp
 	String.cpp
 	Thread.cpp
 	Timer.cpp
