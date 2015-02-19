@@ -7,9 +7,9 @@ StateMachine::StateMachine(): has_event( false )
 
 }
 
-void StateMachine::TriggerEvent(const string &new_state, Utils::EventData *event_data)
+void StateMachine::TriggerEvent( uint8_t new_state, Utils::EventData *event_data)
 {
-	if( new_state == "" ) // AKA do nothing
+	if( new_state == StateMachine::EVENT_IGNORED ) // AKA do nothing
 	{
 		if( event_data != nullptr )
 		{
@@ -22,7 +22,7 @@ void StateMachine::TriggerEvent(const string &new_state, Utils::EventData *event
 	this->Process();
 }
 
-void StateMachine::RegisterEvent(const string &new_state, Utils::EventData *event_data)
+void StateMachine::RegisterEvent(uint8_t new_state, Utils::EventData *event_data)
 {
 	this->state = new_state;
 	this->event_data = event_data;

@@ -17,7 +17,7 @@ public:
 };
 
 typedef std::function<void(EventData*)> StateFunction;
-typedef map<string, StateFunction> StateMap;
+typedef map<uint8_t, StateFunction> StateMap;
 
 /*
  * Very lightweight, featurewise, statemachine.
@@ -27,6 +27,10 @@ typedef map<string, StateFunction> StateMap;
 class StateMachine
 {
 public:
+	enum {
+		EVENT_IGNORED = 0xfe,
+		EVENT_ERROR
+	};
 	StateMachine(const StateMachine&) = delete;
 	StateMachine& operator=(const StateMachine&) = delete;
 
@@ -36,14 +40,14 @@ public:
 
 protected:
 	// Use in external event functions to trigger statemachine
-	void TriggerEvent( const string& new_state, EventData* event_data );
+	void TriggerEvent( uint8_t new_state, EventData* event_data );
 
 	// Use internally to transition to new state.
-	void RegisterEvent( const string& new_state, EventData* event_data);
+	void RegisterEvent( uint8_t new_state, EventData* event_data);
 
 	void Process();
 
-	string state;
+	uint8_t state;
 	EventData* event_data;
 	bool has_event;
 	StateMap statemap;
