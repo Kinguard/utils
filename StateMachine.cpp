@@ -35,6 +35,16 @@ void StateMachine::Process()
 
 	while( this->has_event )
 	{
+		if( this->state == StateMachine::EVENT_ERROR )
+		{
+			throw std::runtime_error("State machine error");
+		}
+
+		if( this->statemap.find( this->state )== this->statemap.end() )
+		{
+			throw std::runtime_error("Illegal state in statemachine");
+		}
+
 		tmpdata = this->event_data;
 
 		this->has_event = false;
