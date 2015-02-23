@@ -1,3 +1,9 @@
+libutils (1.5.3-1) vili; urgency=medium
+
+  * Initial add of statemachine class
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 23 Feb 2015 15:20:46 +0100
+
 libutils (1.5.2-1) vili; urgency=medium
 
   * Fix bug in file stat
