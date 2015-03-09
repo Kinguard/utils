@@ -5,6 +5,8 @@
 #include <functional>
 #include <map>
 
+#include "Mutex.h"
+
 using namespace std;
 
 namespace Utils
@@ -51,6 +53,7 @@ protected:
 	EventData* event_data;
 	bool has_event;
 	StateMap statemap;
+	Mutex m;
 };
 
 } // NS

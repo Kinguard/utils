@@ -31,6 +31,7 @@ void StateMachine::RegisterEvent(uint8_t new_state, Utils::EventData *event_data
 
 void StateMachine::Process()
 {
+	ScopedLock l( this->m );
 	EventData *tmpdata;
 
 	while( this->has_event )

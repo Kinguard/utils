@@ -1,3 +1,9 @@
+libutils (1.5.3-2) vili; urgency=medium
+
+  * Add mutex to protect statemachine in threaded env.
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 09 Mar 2015 11:43:23 +0100
+
 libutils (1.5.3-1) vili; urgency=medium
 
   * Initial add of statemachine class
