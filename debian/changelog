@@ -1,3 +1,9 @@
+libutils (1.5.3-3) vili; urgency=medium
+
+  * Add Async execution to thread class
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 10 Mar 2015 16:05:38 +0100
+
 libutils (1.5.3-2) vili; urgency=medium
 
   * Add mutex to protect statemachine in threaded env.

@@ -26,6 +26,7 @@ set( testutils_src
 	TestShm.cpp
 	TestSimpleHttpClient.cpp
 	TestStateMachine.cpp
+	TestThread.cpp
 	TestTimer.cpp
 	TestUserGroups.cpp
 	)

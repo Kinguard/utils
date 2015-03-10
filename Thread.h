@@ -2,6 +2,7 @@
 #define MYTHREAD_H
 
 #include <pthread.h>
+#include <functional>
 
 namespace Utils{
 
@@ -15,6 +16,8 @@ public:
 		HasRun,
 		Terminated
 	};
+
+	typedef std::function<void()> Function;
 
 private:
 	/**
@@ -53,7 +56,7 @@ public:
 
 	virtual void PreRun() {}
 
-	virtual void Run(){};
+	virtual void Run(){}
 
 	virtual void PostRun() {}
 
@@ -64,6 +67,8 @@ public:
 	virtual void Kill();
 
 	static void Yield();
+
+	static void Async(Function* fn);
 
 	virtual ~Thread();
 

@@ -58,6 +58,37 @@ void Thread::Yield()
 	pthread_yield();
 }
 
+static void* trampolin(void*  arg)
+{
+	Thread::Function* fn = static_cast<Thread::Function*>(arg);
+
+	if( fn )
+	{
+		(*fn)();
+	}
+}
+
+void Thread::Async(Function *fn)
+{
+	pthread_t tid;
+	pthread_attr_t attr;
+
+	if( pthread_attr_init(&attr) != 0 )
+	{
+		throw ErrnoException("Failed to initialize thread attributes");
+	}
+
+	if( pthread_attr_setdetachstate( & attr, PTHREAD_CREATE_DETACHED ) != 0 )
+	{
+			throw ErrnoException("Failed to set thread attribute detached");
+	}
+
+	if( pthread_create( &tid, &attr, trampolin, fn) != 0 )
+	{
+		throw ErrnoException("Failed to create thread");
+	}
+}
+
 void Thread::Signal(int signum)
 {
     pthread_kill( this->thread, signum );
