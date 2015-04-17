@@ -36,9 +36,10 @@ void TestFileUtils::testLinkExists()
 {
 	File::Write("tmpfiles/dummy.txt", "Hello World!",0660);
 	symlink("dummy.txt", "tmpfiles/dummy.link.txt");
+
 	CPPUNIT_ASSERT( File::FileExists("tmpfiles/dummy.txt") );
-	CPPUNIT_ASSERT( File::FileExists("tmpfiles/dummy.link.txt") );
-	CPPUNIT_ASSERT( File::LinkExists("tmpfiles/dummy.link.txt") == false );
+	CPPUNIT_ASSERT( File::FileExists("tmpfiles/dummy.link.txt") == false );
+	CPPUNIT_ASSERT( File::LinkExists("tmpfiles/dummy.link.txt") );
 	CPPUNIT_ASSERT( File::LinkExists("tmpfiles/dummy.txt") == false );
 	CPPUNIT_ASSERT( File::LinkExists("tmpfiles") == false );
 	CPPUNIT_ASSERT( File::LinkExists("nonsens") == false );

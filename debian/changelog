@@ -1,3 +1,9 @@
+libutils (1.5.4-1) vili; urgency=medium
+
+  * Fix bug in File::LinkExist that failed to detect symlink
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 17 Apr 2015 15:49:11 +0200
+
 libutils (1.5.3-3) vili; urgency=medium
 
   * Add Async execution to thread class

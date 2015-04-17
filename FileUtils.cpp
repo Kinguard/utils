@@ -22,7 +22,7 @@ using namespace std;
 static mode_t do_stat(const std::string& path )
 {
 	struct stat st;
-	if(stat(path.c_str(),&st)){
+	if(lstat(path.c_str(),&st)){
 		if( errno == ENOENT ){
 			return false;
 		}
