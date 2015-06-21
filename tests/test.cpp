@@ -14,8 +14,8 @@ int main(int argc, char** argv){
 
 #if 0
 	// Change the default outputter to a compiler error format outputter
-	runner.setOutputter( new CppUnit::CompilerOutputter( &runner.result(),
-#else																std::cerr ) );
+	runner.setOutputter( new CppUnit::CompilerOutputter( &runner.result(), std::cerr ) );
+#else
 	runner.setOutputter( new CppUnit::TextOutputter( &runner.result(), std::cerr ));
 #endif
 
