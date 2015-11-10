@@ -1,3 +1,9 @@
+libutils (1.5.4-2) vili; urgency=medium
+
+  * Rebuild for ubuntu willy
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 26 Oct 2015 17:16:01 +0100
+
 libutils (1.5.4-1) vili; urgency=medium
 
   * Fix bug in File::LinkExist that failed to detect symlink

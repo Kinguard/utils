@@ -15,7 +15,7 @@ void TestArgParse::setUp()
 void TestArgParse::tearDown()
 {
 }
- 
+
 void TestArgParse::Test()
 {
 	vector<const char*> args = { "myapp", "-a", "-b", "--clong=cnew", "-d", "dnew", "r1", "r2"};
