@@ -25,7 +25,10 @@
 #define STATEMACHINE_H
 
 #include <functional>
+#include <stdexcept>
 #include <map>
+
+#include <stdint.h>
 
 #include "Mutex.h"
 
