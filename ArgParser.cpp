@@ -26,6 +26,8 @@
 #include <iostream>
 #include <sstream>
 
+#include <string.h>
+
 Utils::ArgParser::ArgParser():map<string,string>()
 {
 
@@ -51,7 +53,7 @@ Utils::ArgParser::AddOption(const Option& opt)
 	// Create long args version
 	this->longopts.push_back(
 		{
-			opt.long_desc.c_str(),
+			strdup( opt.long_desc.c_str() ),
 			opt.type,
 			0,
 			0
@@ -168,9 +170,32 @@ string Utils::ArgParser::GetHelptext()
 	return ss.str();
 }
 
-Utils::ArgParser::~ArgParser()
+void Utils::ArgParser::_Dump()
 {
 
+	for( const Option& opt: this->opts )
+	{
+		cout << "Options: ["<< opt.long_desc<< "] [" << opt.short_desc << "] [" << opt.default_val << "] " << opt.helptext << endl;
+	}
+
+	cout << "Short args: "<<this->shortargs << endl;
+
+	for( const struct option& opt: this->longopts)
+	{
+		cout << "Longopt: ["<< opt.name << "] ["<<opt.has_arg<<"]"<<endl;
+	}
+
+}
+
+Utils::ArgParser::~ArgParser()
+{
+	for( const option opt: this->longopts )
+	{
+		if( opt.name != nullptr )
+		{
+			free( (void*)opt.name );
+		}
+	}
 }
 
 inline int

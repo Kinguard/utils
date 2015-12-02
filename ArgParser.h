@@ -76,6 +76,8 @@ public:
 
 	string GetHelptext();
 
+	void _Dump(void);
+
 	virtual ~ArgParser();
 
 private:
