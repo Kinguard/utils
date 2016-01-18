@@ -47,8 +47,13 @@ Socket::Socket(int sockfd): domain(Socket::NoDomain),type(Socket::NoType),sock(s
 }
 
 Socket::Socket(enum Socket::Domain domain, enum Socket::Type type):
-		Socket("","",domain,type)
+		domain(domain), type(type), hostpath(""),service("")
 {
+	this->sock = socket(this->domain, this->type, 0);
+	if( this->sock < 0 )
+	{
+		throw Utils::ErrnoException("Failed to create socket");
+	}
 }
 
 Socket::Socket ( const std::string& hostpath, const std::string& service,

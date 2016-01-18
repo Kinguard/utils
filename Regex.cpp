@@ -32,7 +32,7 @@ Regex::Regex() : valid(false)
 {
 }
 
-Regex::Regex(const string &pattern, bool insensitive): Regex()
+Regex::Regex(const string &pattern, bool insensitive): valid(false)
 {
 	this->Compile( pattern, insensitive );
 }

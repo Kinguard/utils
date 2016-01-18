@@ -2,7 +2,10 @@
 
 #include "Regex.h"
 
+#include <stdexcept>
+
 using namespace Utils;
+using namespace std;
 
 CPPUNIT_TEST_SUITE_REGISTRATION ( TestRegex );
 
