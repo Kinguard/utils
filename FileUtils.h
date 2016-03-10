@@ -79,6 +79,8 @@ std::string GetPath(const std::string& s);
 /* Aka, basename */
 std::string GetFileName(const std::string& s);
 
+/* return the canonicalized absolute pathname */
+std::string RealPath(const std::string& path);
 
 std::list<std::string> Glob(const std::string& pattern);
 

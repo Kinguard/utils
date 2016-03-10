@@ -11,6 +11,7 @@ class TestFileUtils: public CppUnit::TestFixture
 	CPPUNIT_TEST( testLinkExists);
 	CPPUNIT_TEST( testFileRead );
 	CPPUNIT_TEST( testFileWrite );
+	CPPUNIT_TEST( testRealPath );
 	CPPUNIT_TEST_SUITE_END();
 public:
 	void setUp();
@@ -21,6 +22,7 @@ public:
 	void testLinkExists();
 	void testFileRead();
 	void testFileWrite();
+	void testRealPath();
 //Todo: make rest of tests
 };
 

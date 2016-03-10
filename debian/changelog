@@ -1,3 +1,9 @@
+libutils (1.5.6-1) vili; urgency=medium
+
+  * Added realpath fileutil
+
+ -- Tor Krill <tor@openproducts.se>  Thu, 10 Mar 2016 13:42:47 +0100
+
 libutils (1.5.5-4) vili; urgency=medium
 
   * Fixed compilation of socket class on gcc < 4.7 (RaspberryPI)

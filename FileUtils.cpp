@@ -317,3 +317,18 @@ string Utils::File::GetFileName(const string &s)
 		return s;
 	}
 }
+
+string Utils::File::RealPath(const string &path)
+{
+	char *rcpath = realpath( path.c_str(), nullptr);
+
+	if( !rcpath )
+	{
+		throw ErrnoException("Realpath failed");
+	}
+	string rpath(rcpath);
+
+	free( rcpath );
+
+	return rpath;
+}

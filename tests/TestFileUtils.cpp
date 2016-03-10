@@ -7,15 +7,25 @@
 #include <unistd.h>
 
 using namespace Utils;
+using namespace std;
 
 CPPUNIT_TEST_SUITE_REGISTRATION (TestFileUtils);
 
+#define TESTDIR "/tmp/testfiles/"
+
 void TestFileUtils::setUp(){
-	mkdir("tmpfiles",0700);
+	mkdir(TESTDIR,0700);
 }
 
 void TestFileUtils::tearDown(){
-	rmdir("tmpfiles");
+	// Remove all files in testdir
+	list<string> files = File::Glob(TESTDIR "*");
+	for( const string& file: files)
+	{
+		unlink(file.c_str() );
+	}
+
+	rmdir(TESTDIR);
 }
 
 void TestFileUtils::testFileExists()
@@ -34,13 +44,13 @@ void TestFileUtils::testDirExists()
 
 void TestFileUtils::testLinkExists()
 {
-	File::Write("tmpfiles/dummy.txt", "Hello World!",0660);
-	symlink("dummy.txt", "tmpfiles/dummy.link.txt");
+	File::Write(TESTDIR "dummy.txt", "Hello World!",0660);
+	symlink("dummy.txt", TESTDIR "dummy.link.txt");
 
-	CPPUNIT_ASSERT( File::FileExists("tmpfiles/dummy.txt") );
-	CPPUNIT_ASSERT( File::FileExists("tmpfiles/dummy.link.txt") == false );
-	CPPUNIT_ASSERT( File::LinkExists("tmpfiles/dummy.link.txt") );
-	CPPUNIT_ASSERT( File::LinkExists("tmpfiles/dummy.txt") == false );
+	CPPUNIT_ASSERT( File::FileExists( TESTDIR "dummy.txt") );
+	CPPUNIT_ASSERT( File::FileExists( TESTDIR "dummy.link.txt") == false );
+	CPPUNIT_ASSERT( File::LinkExists( TESTDIR "dummy.link.txt") );
+	CPPUNIT_ASSERT( File::LinkExists( TESTDIR "dummy.txt") == false );
 	CPPUNIT_ASSERT( File::LinkExists("tmpfiles") == false );
 	CPPUNIT_ASSERT( File::LinkExists("nonsens") == false );
 }
@@ -51,8 +61,8 @@ TestFileUtils::testFileRead ()
 	std::vector<unsigned char> test={1,2,3,4,5,6,7,8,9,10};
 	std::vector<unsigned char> verify;
 
-	CPPUNIT_ASSERT_NO_THROW( File::WriteVector<std::vector<unsigned char>>("tmpfiles/test-1.bin", test, 0666) );
-	CPPUNIT_ASSERT_NO_THROW( File::ReadVector<std::vector<unsigned char>>("tmpfiles/test-1.bin", verify) );
+	CPPUNIT_ASSERT_NO_THROW( File::WriteVector<std::vector<unsigned char>>( TESTDIR "test-1.bin", test, 0666) );
+	CPPUNIT_ASSERT_NO_THROW( File::ReadVector<std::vector<unsigned char>>( TESTDIR "test-1.bin", verify) );
 	CPPUNIT_ASSERT_EQUAL( test.size(), verify.size() );
 	CPPUNIT_ASSERT( test == verify );
 
@@ -61,7 +71,19 @@ TestFileUtils::testFileRead ()
 void TestFileUtils::testFileWrite()
 {
 	CPPUNIT_ASSERT_THROW( File::Write("tmpfiless/test-1.txt","Hello World!",0666), ErrnoException);
-	CPPUNIT_ASSERT_NO_THROW( File::Write("tmpfiles/test-1.txt","Hello World!",0666) );
-	CPPUNIT_ASSERT( File::FileExists("tmpfiles/test-1.txt") );
-	unlink("tmpfiles/test-1.txt");
+	CPPUNIT_ASSERT_NO_THROW( File::Write( TESTDIR "test-1.txt","Hello World!",0666) );
+	CPPUNIT_ASSERT( File::FileExists( TESTDIR "test-1.txt") );
+	unlink( TESTDIR "test-1.txt");
+}
+
+void TestFileUtils::testRealPath()
+{
+	File::Write( TESTDIR "rctest.txt", "Hello World!",0660);
+	symlink("rctest.txt", TESTDIR "rctest.link.txt");
+
+	CPPUNIT_ASSERT_EQUAL(  std::string(TESTDIR "rctest.txt"),  File::RealPath( TESTDIR "rctest.link.txt"));
+	CPPUNIT_ASSERT_EQUAL( File::RealPath( TESTDIR "rctest.txt"),  File::RealPath( TESTDIR "rctest.link.txt"));
+	CPPUNIT_ASSERT_EQUAL( File::RealPath( TESTDIR "rctest.txt"),  File::RealPath( TESTDIR "rctest.txt"));
+	CPPUNIT_ASSERT_EQUAL( std::string( TESTDIR "rctest.txt"),  File::RealPath( TESTDIR "rctest.link.txt"));
+	CPPUNIT_ASSERT_THROW( File::RealPath( TESTDIR "rctest.nonsens.txt"), ErrnoException );
 }
