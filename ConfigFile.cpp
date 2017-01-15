@@ -23,7 +23,7 @@
 
 #include <list>
 #include <sstream>
-
+#include <iostream>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -123,6 +123,108 @@ string ConfigFile::ToString()
 		ss << (*it).first << "=" << (*it).second <<endl;
 	}
 	return ss.str();
+}
+/*
+ *
+ * Inifile implementation
+ *
+ */
+IniFile::IniFile(const string &filename, const string &delim, char comment):
+	delimiter(delim),
+	comment(comment),
+	currsection("")
+{
+	list<string> rows = File::GetContent(filename);
+
+	this->ParseInput( rows );
+}
+
+IniFile::IniFile(const list<string> &lines, const string &delim, char comment):
+
+	delimiter(delim),
+	comment(comment),
+	currsection("")
+{
+	this->ParseInput( lines );
+}
+
+void IniFile::UseSection(const string &section)
+{
+	this->currsection = section;
+}
+
+string IniFile::ValueOrDefault(const string &section, const string &key, const string &defval)
+{
+	if( this->find(section) != this->end() )
+	{
+		if( this->operator [](section).find(key) != this->operator [](section).end())
+		{
+			return this->operator[](section).operator[](key);
+		}
+	}
+
+	return defval;
+
+}
+
+string IniFile::ValueOrDefault(const string &key, const string &defval)
+{
+	return this->ValueOrDefault(this->currsection, key, defval);
+}
+
+void IniFile::Dump()
+{
+	for( auto iT = this->cbegin(); iT != this->end(); iT++)
+	{
+		cout << "Line " << iT->first << endl;
+		for( auto iiT = iT->second.cbegin(); iiT != iT->second.end(); iiT++)
+		{
+			cout << "\t"<< iiT->first << "=" << iiT->second << endl;
+		}
+	}
+}
+
+IniFile::~IniFile()
+{
+
+}
+
+void IniFile::ParseInput(const list<string> &rows)
+{
+	for( auto row: rows)
+	{
+		string line =  String::Trimmed(row, " ");
+
+		if( line == "" || line.front() == this->comment )
+		{
+			continue;
+		}
+
+		if( line.front() == '[' && line.back() == ']')
+		{
+			// Got a "new" section
+			this->currsection = line.substr(1,line.size()-2);
+			continue;
+		}
+
+		list<string> keyval = String::Split(line, this->delimiter.c_str());
+		if( keyval.size() != 2 )
+		{
+			continue;
+		}
+
+		if( this->currsection == "" )
+		{
+			//throw std::runtime_error("Iniparser: Malformed input, no section to add key value to");
+		}
+		cout << "Add " << String::Trimmed(keyval.front()," ")
+			 << " " << String::Trimmed(keyval.back(), " ")
+			 << " to section " << this->currsection<<endl;
+		this->operator [](this->currsection).insert( pair<string,string>(
+					String::Trimmed(keyval.front(), " "),
+					String::Trimmed(keyval.back(), " ") ));
+	}
+
 }
 
 } // Namespace Utils

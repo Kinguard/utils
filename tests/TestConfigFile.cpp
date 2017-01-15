@@ -124,3 +124,19 @@ void TestConfigFile::Test()
 	CPPUNIT_ASSERT_EQUAL( f.ValueOrDefault("key1", "default"), string("New val"));
 
 }
+
+void TestConfigFile::TestIni()
+{
+	list<string> data=
+	{
+		"#Hello world!",
+		"[section1]",
+		"aa = bb"
+	};
+
+	Utils::IniFile ini(data);
+
+	ini.Dump();
+	CPPUNIT_ASSERT_EQUAL( ini.ValueOrDefault("section1","aa",""), string("bb"));
+
+}

@@ -25,6 +25,7 @@
 #define CONFIGFILE_H
 
 #include <map>
+#include <list>
 #include <string>
 
 using namespace std;
@@ -47,6 +48,27 @@ public:
 private:
 	string ToString();
 	string filename;
+};
+
+class IniFile: public map<string, map<string, string>>
+{
+public:
+	IniFile(const string& filename, const string& delim = "=", char comment='#');
+	IniFile(const list<string>& lines, const string& delim = "=", char comment='#');
+
+	void UseSection( const string& section);
+
+	string ValueOrDefault(const string& section, const string& key, const string& defval="");
+	string ValueOrDefault(const string& key, const string& defval="");
+
+	void Dump();
+
+	virtual ~IniFile();
+private:
+	void ParseInput(const list<string> &rows);
+	string delimiter;
+	char comment;
+	string currsection;
 };
 
 }
