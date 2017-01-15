@@ -28,9 +28,10 @@ using namespace std;
 
 #define ECHO_SERVER "tor-desktop"
 
+#include "String.h"
 #include "Thread.h"
+#include "FileUtils.h"
 #include "Condition.h"
-
 
 class TestServer: public Utils::Thread {
 protected:
@@ -50,6 +51,80 @@ public:
 	virtual ~TestServer(){}
 };
 
+class TcpServer: public TestServer {
+private:
+	TCPServerSocket s;
+public:
+
+	TcpServer(const string& netif):TestServer(true),s(netif,2233){}
+
+	virtual void Run()
+	{
+		Utils::Net::SocketPtr c = s.Accept();
+		if( c )
+		{
+			vector<char> data;
+			c->AppendTo(data,512);
+
+			c->Write(data);
+		}else{
+			throw std::runtime_error("Accept failed");
+		}
+
+	}
+};
+
+class TestEchoServer: public Utils::Thread {
+private:
+	Utils::Net::ServerSocketPtr serv;
+public:
+
+	TestEchoServer(Utils::Net::ServerSocketPtr srvsock):Utils::Thread(false),serv(srvsock)
+	{
+		serv->SetTimeout(0,10000);
+	}
+
+	virtual void Run()
+	{
+		//cout << "TestEcho server starting up!"<<endl;
+		Utils::Net::SocketPtr c;
+		while(  c = serv->Accept() )
+		{
+			//cout << "TestEcho Got connection!"<< endl;
+			char data[512];
+
+			do
+			{
+				memset( data, 0 , 512);
+				if( c->Read( data,  512) > 0 )
+				{
+					//cout << "TestEcho got data "  << data << endl;
+					c->Write(data,strlen(data));
+				}
+			}while( strlen( data ) > 0 );
+		}
+
+		//cout << "TestEcho server terminating!"<<endl;
+	}
+	virtual ~TestEchoServer(){}
+};
+
+
+
+
+SocketTest::SocketTest():netif("eth0")
+{
+	// Get first ifname not being localnet
+	list<string> ifs = Utils::Net::GetInterfaces();
+	for( const string& iface : ifs )
+	{
+		if( iface != "lo" )
+		{
+			this->netif = iface;
+			break;
+		}
+	}
+}
 
 void SocketTest::setUp() {
 }
@@ -76,9 +151,25 @@ void SocketTest::testTCPClientConstructor()
 	CPPUNIT_ASSERT_NO_THROW(TCPClientSocket t("www.google.se",80) );
 	//TODO: fix error cases not possible atm due to opendns stupid behavior
 }
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <signal.h>
 
 void SocketTest::testTCPClientEcho() {
-	TCPClientSocket t(ECHO_SERVER, 7);
+
+	struct sockaddr addr = Utils::Net::GetIfAddr( this->netif );
+	struct sockaddr_in* ipa = (struct sockaddr_in*)&addr;
+	string ipaddr( inet_ntoa( ipa->sin_addr ) );
+
+	Utils::Net::ServerSocketPtr sock( new TCPServerSocket(this->netif, 2233) );
+	TestEchoServer e(sock);
+
+	e.Start();
+	usleep(1000); // Give server time to start up
+
+	//cout << "Try connect to " << ipaddr << endl;
+	TCPClientSocket t(ipaddr, 2233);
 	string hello("Hello\r\n");
 	char buf[1024];
 
@@ -104,6 +195,9 @@ void SocketTest::testTCPClientEcho() {
 	CPPUNIT_ASSERT_EQUAL(wt,rd);
 	string trd2(&v[0],rd);
 	CPPUNIT_ASSERT( goodbye == trd2 );
+	close(t.getSocketFd());
+	e.Join();
+	//cout << "Test done"<<endl;
 }
 
 void SocketTest::testUDPSocketConstructor()
@@ -133,7 +227,7 @@ class Listen: public TestServer {
 private:
 	vector<char> data;
 public:
-	Listen(bool detached): TestServer(detached)
+	Listen(bool detached, const string &netif): TestServer(detached),netif(netif)
 	{
 	}
 
@@ -147,10 +241,12 @@ public:
 		const char* group="239.255.255.250";
 		MulticastSocket rec("1920");
 
-		rec.Join(group,"eth0");
+		rec.Join(group,this->netif);
 		this->joined.Notify();
 		rec.AppendTo(data,512);
 	}
+private:
+	string netif;
 };
 
 #include <unistd.h>
@@ -158,7 +254,7 @@ void SocketTest::testUDPSocketSendTo() {
 	const char* group="239.255.255.250";
 	uint16_t port = 1920;
 
-	Listen l(false);
+	Listen l(false, this->netif);
 
 	l.Start();
 	l.WaitJoined();
@@ -176,19 +272,33 @@ void SocketTest::testUDPSocketSendTo() {
 
 void SocketTest::testConnect()
 {
-	TCPClientSocket t(ECHO_SERVER,7);
+	struct sockaddr addr = Utils::Net::GetIfAddr( this->netif );
+	struct sockaddr_in* ipa = (struct sockaddr_in*)&addr;
+	string ipaddr( inet_ntoa( ipa->sin_addr ) );
+	{
+		Utils::Net::ServerSocketPtr sock( new TCPServerSocket(this->netif, 2233) );
+		TestEchoServer e(sock);
 
-	string hello("Hello\r\n");
-	size_t wt = t.Write(hello.c_str(),hello.length());
-	CPPUNIT_ASSERT_EQUAL(hello.length(), wt);
+		e.Start();
+		usleep(1000); // Give server time to start up
 
-	char buf[1024];
-	size_t rd = t.Read(buf,1024);
-	CPPUNIT_ASSERT_EQUAL(wt,rd);
+		//cout << "Try connect to " << ipaddr << endl;
+		TCPClientSocket t(ipaddr, 2233);
 
-	string trd(buf,rd);
-	CPPUNIT_ASSERT( hello == trd );
+		string hello("Hello\r\n");
+		size_t wt = t.Write(hello.c_str(),hello.length());
+		CPPUNIT_ASSERT_EQUAL(hello.length(), wt);
 
+		char buf[1024];
+		size_t rd = t.Read(buf,1024);
+		CPPUNIT_ASSERT_EQUAL(wt,rd);
+
+		string trd(buf,rd);
+		CPPUNIT_ASSERT( hello == trd );
+		close( t.getSocketFd() );
+
+		e.Join();
+	}
 #if 0 // Udp echo server seems not working in xinetd
 	UDPClientSocket s(ECHO_SERVER,7);
 
@@ -208,7 +318,7 @@ void SocketTest::testBind()
 
 	CPPUNIT_ASSERT_THROW( UDPServerSocket("nonsens","2233"),std::runtime_error);
 
-	CPPUNIT_ASSERT_NO_THROW( UDPServerSocket("eth0","2233") );
+	CPPUNIT_ASSERT_NO_THROW( UDPServerSocket(this->netif,"2233") );
 
 }
 
@@ -222,9 +332,9 @@ void SocketTest::testMulticast()
 	CPPUNIT_ASSERT_EQUAL(true, ms.GetLoopback() ) ;
 
 	CPPUNIT_ASSERT_THROW(ms.Join(group,"nonsens"),std::runtime_error);
-	CPPUNIT_ASSERT_NO_THROW( ms.Join(group,"eth0") );
+	CPPUNIT_ASSERT_NO_THROW( ms.Join(group,this->netif) );
 
-	CPPUNIT_ASSERT_NO_THROW( ms.Leave(group,"eth0") );
+	CPPUNIT_ASSERT_NO_THROW( ms.Leave(group,this->netif) );
 }
 
 void SocketTest::testMulticastSend() {
@@ -232,7 +342,7 @@ void SocketTest::testMulticastSend() {
 	uint16_t port = 1910;
 
 	MulticastSocket rec("1910");
-	rec.Join(group,"eth0");
+	rec.Join(group,this->netif);
 
 	UDPClientSocket send(group, port);
 	const char* mess="Hello World!\r\n";
@@ -245,30 +355,6 @@ void SocketTest::testMulticastSend() {
 
 }
 
-class TcpServer: public TestServer {
-private:
-	TCPServerSocket s;
-public:
-
-	TcpServer():TestServer(true),s("eth0",2233){}
-
-	virtual void Run()
-	{
-		Utils::Net::SocketPtr c = s.Accept();
-		if( c )
-		{
-			vector<char> data;
-			c->AppendTo(data,512);
-
-			c->Write(data);
-		}else{
-			throw std::runtime_error("Accept failed");
-		}
-
-	}
-};
-
-
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -276,12 +362,12 @@ public:
 void
 SocketTest::testTCPServer ()
 {
-	TcpServer s;
+	TcpServer s(this->netif);
 
 	s.Start();
 	usleep(1000); // Give server time to start up
 
-	struct sockaddr addr=Utils::Net::GetIfAddr("eth0");
+	struct sockaddr addr=Utils::Net::GetIfAddr(this->netif);
 	string ethaddr(inet_ntoa(((struct sockaddr_in *)&addr)->sin_addr));
 
 	TCPClientSocket c(ethaddr, 2233);

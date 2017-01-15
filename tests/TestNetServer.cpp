@@ -9,6 +9,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION ( TestNetServer );
 #include "Socket.h"
 #include "Condition.h"
 #include "Logger.h"
+#include "FileUtils.h"
 
 using namespace Utils;
 using namespace Utils::Net;
@@ -78,6 +79,12 @@ void TestNetServer::tearDown()
 void TestNetServer::Test()
 {
 	//Utils::log.SetLevel(Utils::Logger::Debug);
+
+	if( Utils::File::SocketExists( "/tmp/nstest" ) )
+	{
+		Utils::File::Delete( "/tmp/nstest");
+	}
+
 	NSTester nst("/tmp/nstest");
 
 	nst.Start();

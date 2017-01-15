@@ -2,6 +2,7 @@
 
 #include "NetUtils.h"
 #include <iomanip>
+#include <algorithm>
 
 CPPUNIT_TEST_SUITE_REGISTRATION (TestNetUtils);
 
@@ -13,11 +14,28 @@ void TestNetUtils::setUp(){
 void TestNetUtils::tearDown(){
 }
 
+static string GetIfName()
+{
+	// Get first ifname not being localnet
+	string iface = "eth0";
+
+	list<string> ifs = Utils::Net::GetInterfaces();
+
+	auto it = std::find_if_not( ifs.begin(), ifs.end(), [](const string& n){ return n=="lo";} );
+
+	if ( it != ifs.end() )
+	{
+		iface = *it;
+	}
+
+	return iface;
+}
+
 void TestNetUtils::testGetHWAddr()
 {
 	CPPUNIT_ASSERT_THROW(Utils::Net::GetHWAddr("nonsens") , Utils::ErrnoException);
 
-	vector<uint8_t> hw = Utils::Net::GetHWAddr("eth0");
+	vector<uint8_t> hw = Utils::Net::GetHWAddr(GetIfName());
 
 	CPPUNIT_ASSERT_EQUAL(6, (int)hw.size());
 
@@ -30,7 +48,8 @@ void TestNetUtils::testGetHWAddr()
 
 void TestNetUtils::testGetIfAddr() {
 	CPPUNIT_ASSERT_THROW(Utils::Net::GetIfAddr("nonsens") , Utils::ErrnoException);
-	CPPUNIT_ASSERT_NO_THROW(Utils::Net::GetIfAddr("eth0"));
+
+	CPPUNIT_ASSERT_NO_THROW(Utils::Net::GetIfAddr(GetIfName()));
 }
 
 void TestNetUtils::testGetInterfaces() {

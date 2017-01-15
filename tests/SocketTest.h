@@ -10,6 +10,8 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
+#include <string>
+
 class SocketTest: public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE( SocketTest );
@@ -18,7 +20,7 @@ class SocketTest: public CppUnit::TestFixture
 	CPPUNIT_TEST( testTCPClientEcho );
 	CPPUNIT_TEST( testTCPServer );
 	CPPUNIT_TEST( testUDPSocketConstructor );
-	CPPUNIT_TEST( testUDPSocketEcho );
+	//CPPUNIT_TEST( testUDPSocketEcho );
 	CPPUNIT_TEST( testUDPSocketSendTo );
 	CPPUNIT_TEST( testConnect );
 	CPPUNIT_TEST( testBind );
@@ -28,6 +30,7 @@ class SocketTest: public CppUnit::TestFixture
 	CPPUNIT_TEST( testUnixFdPass );
 	CPPUNIT_TEST_SUITE_END();
 public:
+	SocketTest();
 	void setUp();
 	void tearDown();
 
@@ -50,6 +53,8 @@ public:
 
 	void testUnixStreamSocket();
 	void testUnixFdPass();
+private:
+	std::string netif;
 };
 
 #endif /* SOCKETTEST_H_ */
