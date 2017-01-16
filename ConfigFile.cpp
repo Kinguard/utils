@@ -132,6 +132,7 @@ string ConfigFile::ToString()
 IniFile::IniFile(const string &filename, const string &delim, char comment):
 	delimiter(delim),
 	comment(comment),
+	filename(filename),
 	currsection("")
 {
 	list<string> rows = File::GetContent(filename);
@@ -143,6 +144,7 @@ IniFile::IniFile(const list<string> &lines, const string &delim, char comment):
 
 	delimiter(delim),
 	comment(comment),
+	filename(""),
 	currsection("")
 {
 	this->ParseInput( lines );
@@ -172,16 +174,44 @@ string IniFile::ValueOrDefault(const string &key, const string &defval)
 	return this->Value(this->currsection, key, defval);
 }
 
+void IniFile::Save(const string &filename, bool create, mode_t mode)
+{
+	if( filename == "" && this->filename == "" )
+	{
+		throw std::runtime_error("IniFile: missing filename for save");
+	}
+
+	string outname = filename == "" ? this->filename : filename;
+
+	if( !create && !File::FileExists( outname ) )
+	{
+		throw runtime_error("File does not exist and creation disallowed");
+	}
+
+	if( ! File::FileExists( outname ) )
+	{
+		File::Write( outname, "", mode);
+	}
+
+	struct stat st;
+	if( stat(outname.c_str(), &st) < 0 )
+	{
+		throw ErrnoException("Failed to stat file");
+	}
+
+	string tmpfile=outname + ".new";
+
+	File::Write(tmpfile, this->ToString(), st.st_mode);
+
+	if( rename( tmpfile.c_str(), outname.c_str() ) < 0 )
+	{
+		throw ErrnoException("Failed to rename config file");
+	}
+}
+
 void IniFile::Dump()
 {
-	for( auto iT = this->cbegin(); iT != this->end(); iT++)
-	{
-		cout << "[" << iT->first <<"]" << endl;
-		for( auto iiT = iT->second.cbegin(); iiT != iT->second.end(); iiT++)
-		{
-			cout << "\t"<< iiT->first << this->delimiter << iiT->second << endl;
-		}
-	}
+	printf("%s\n", this->ToString().c_str() );
 }
 
 IniFile::~IniFile()
@@ -225,6 +255,22 @@ void IniFile::ParseInput(const list<string> &rows)
 					String::Trimmed(keyval.back(), " \t") ));
 	}
 
+}
+
+string IniFile::ToString()
+{
+	stringstream ss;
+
+	for( auto iT = this->cbegin(); iT != this->end(); iT++)
+	{
+		ss << "[" << iT->first <<"]" << endl;
+		for( auto iiT = iT->second.cbegin(); iiT != iT->second.end(); iiT++)
+		{
+			ss << iiT->first << this->delimiter << iiT->second << endl;
+		}
+	}
+
+	return ss.str();
 }
 
 } // Namespace Utils

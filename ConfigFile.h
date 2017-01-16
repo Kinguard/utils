@@ -61,13 +61,17 @@ public:
 	string Value(const string& section, const string& key, const string& defval="");
 	string ValueOrDefault(const string& key, const string& defval="");
 
+	void Save(const string& filename="", bool create = true, mode_t mode=0640);
+
 	void Dump();
 
 	virtual ~IniFile();
 private:
 	void ParseInput(const list<string> &rows);
+	string ToString();
 	string delimiter;
 	char comment;
+	string filename;
 	string currsection;
 };
 

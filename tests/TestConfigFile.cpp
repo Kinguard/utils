@@ -114,6 +114,8 @@ void TestConfigFile::tearDown()
 {
 	unlink("test.cfg");
 	unlink("test2.cfg");
+
+	unlink("testsave.cfg");
 }
 
 void TestConfigFile::Test()
@@ -191,4 +193,34 @@ void TestConfigFile::TestIniFile()
 	CPPUNIT_ASSERT_EQUAL( i.Value("s1","key1"), string("val1"));
 	CPPUNIT_ASSERT_EQUAL( i.Value("s2","key2"), string("A longer value"));
 	CPPUNIT_ASSERT_EQUAL( i.Value("s2","key3"), string("12"));
+}
+
+void TestConfigFile::TestIniSaveFile()
+{
+
+	{
+		Utils::IniFile i("test2.cfg");
+		CPPUNIT_ASSERT_NO_THROW( i.Save() );
+	}
+
+	{
+		Utils::IniFile i("test2.cfg");
+		i.Dump();
+		CPPUNIT_ASSERT_EQUAL( i.Value("s1","key 1"), string("val 1"));
+		CPPUNIT_ASSERT_EQUAL( i.Value("s1","key1"), string("val1"));
+		CPPUNIT_ASSERT_EQUAL( i.Value("s2","key2"), string("A longer value"));
+		CPPUNIT_ASSERT_EQUAL( i.Value("s2","key3"), string("12"));
+
+		CPPUNIT_ASSERT_NO_THROW( i.Save("testsave.cfg") );
+	}
+
+	{
+		Utils::IniFile i("testsave.cfg");
+		i.Dump();
+		CPPUNIT_ASSERT_EQUAL( i.Value("s1","key 1"), string("val 1"));
+		CPPUNIT_ASSERT_EQUAL( i.Value("s1","key1"), string("val1"));
+		CPPUNIT_ASSERT_EQUAL( i.Value("s2","key2"), string("A longer value"));
+		CPPUNIT_ASSERT_EQUAL( i.Value("s2","key3"), string("12"));
+	}
+
 }
