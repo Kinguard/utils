@@ -23,7 +23,6 @@
 
 #include <list>
 #include <sstream>
-#include <iostream>
 #include <stdio.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -247,9 +246,6 @@ void IniFile::ParseInput(const list<string> &rows)
 		{
 			//throw std::runtime_error("Iniparser: Malformed input, no section to add key value to");
 		}
-		cout << "Add " << String::Trimmed(keyval.front()," ")
-			 << " " << String::Trimmed(keyval.back(), " ")
-			 << " to section " << this->currsection<<endl;
 		this->operator [](this->currsection).insert( pair<string,string>(
 					String::Trimmed(keyval.front(), " \t"),
 					String::Trimmed(keyval.back(), " \t") ));

@@ -188,7 +188,7 @@ void TestConfigFile::TestIniS3ql()
 void TestConfigFile::TestIniFile()
 {
 	Utils::IniFile i("test2.cfg");
-	i.Dump();
+	//i.Dump();
 	CPPUNIT_ASSERT_EQUAL( i.Value("s1","key 1"), string("val 1"));
 	CPPUNIT_ASSERT_EQUAL( i.Value("s1","key1"), string("val1"));
 	CPPUNIT_ASSERT_EQUAL( i.Value("s2","key2"), string("A longer value"));
@@ -205,18 +205,21 @@ void TestConfigFile::TestIniSaveFile()
 
 	{
 		Utils::IniFile i("test2.cfg");
-		i.Dump();
+		i["s3"]["key"]="values";
+		//i.Dump();
 		CPPUNIT_ASSERT_EQUAL( i.Value("s1","key 1"), string("val 1"));
 		CPPUNIT_ASSERT_EQUAL( i.Value("s1","key1"), string("val1"));
 		CPPUNIT_ASSERT_EQUAL( i.Value("s2","key2"), string("A longer value"));
 		CPPUNIT_ASSERT_EQUAL( i.Value("s2","key3"), string("12"));
+
+		CPPUNIT_ASSERT_EQUAL( i["s2"]["key3"], string("12"));
 
 		CPPUNIT_ASSERT_NO_THROW( i.Save("testsave.cfg") );
 	}
 
 	{
 		Utils::IniFile i("testsave.cfg");
-		i.Dump();
+		//i.Dump();
 		CPPUNIT_ASSERT_EQUAL( i.Value("s1","key 1"), string("val 1"));
 		CPPUNIT_ASSERT_EQUAL( i.Value("s1","key1"), string("val1"));
 		CPPUNIT_ASSERT_EQUAL( i.Value("s2","key2"), string("A longer value"));
