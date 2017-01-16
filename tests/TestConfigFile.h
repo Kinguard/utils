@@ -8,6 +8,8 @@ class TestConfigFile: public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE( TestConfigFile );
 	CPPUNIT_TEST( Test );
 	CPPUNIT_TEST( TestIni );
+	CPPUNIT_TEST( TestIniS3ql );
+	CPPUNIT_TEST( TestIniFile );
 	CPPUNIT_TEST_SUITE_END();
 public:
 	void setUp();
@@ -15,6 +17,8 @@ public:
 
 	void Test();
 	void TestIni();
+	void TestIniS3ql();
+	void TestIniFile();
 };
 
 #endif /* TESTCONFIGFILE_H_ */

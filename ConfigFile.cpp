@@ -45,7 +45,7 @@ ConfigFile::ConfigFile(const string &filename): filename(filename)
 
 	for( auto row: rows)
 	{
-		string line =  String::Trimmed(row, " ");
+		string line =  String::Trimmed(row, " \t");
 
 		if( line == "" || line.front() =='#' )
 		{
@@ -59,8 +59,8 @@ ConfigFile::ConfigFile(const string &filename): filename(filename)
 		}
 
 		this->insert(pair<string,string>(
-			String::Trimmed(keyval.front(), " "),
-			String::Trimmed(keyval.back(), " ") ));
+			String::Trimmed(keyval.front(), " \t"),
+			String::Trimmed(keyval.back(), " \t") ));
 	}
 }
 
@@ -153,7 +153,7 @@ void IniFile::UseSection(const string &section)
 	this->currsection = section;
 }
 
-string IniFile::ValueOrDefault(const string &section, const string &key, const string &defval)
+string IniFile::Value(const string &section, const string &key, const string &defval)
 {
 	if( this->find(section) != this->end() )
 	{
@@ -169,17 +169,17 @@ string IniFile::ValueOrDefault(const string &section, const string &key, const s
 
 string IniFile::ValueOrDefault(const string &key, const string &defval)
 {
-	return this->ValueOrDefault(this->currsection, key, defval);
+	return this->Value(this->currsection, key, defval);
 }
 
 void IniFile::Dump()
 {
 	for( auto iT = this->cbegin(); iT != this->end(); iT++)
 	{
-		cout << "Line " << iT->first << endl;
+		cout << "[" << iT->first <<"]" << endl;
 		for( auto iiT = iT->second.cbegin(); iiT != iT->second.end(); iiT++)
 		{
-			cout << "\t"<< iiT->first << "=" << iiT->second << endl;
+			cout << "\t"<< iiT->first << this->delimiter << iiT->second << endl;
 		}
 	}
 }
@@ -193,7 +193,7 @@ void IniFile::ParseInput(const list<string> &rows)
 {
 	for( auto row: rows)
 	{
-		string line =  String::Trimmed(row, " ");
+		string line =  String::Trimmed(row, " \t");
 
 		if( line == "" || line.front() == this->comment )
 		{
@@ -203,7 +203,7 @@ void IniFile::ParseInput(const list<string> &rows)
 		if( line.front() == '[' && line.back() == ']')
 		{
 			// Got a "new" section
-			this->currsection = line.substr(1,line.size()-2);
+			this->currsection = String::Trimmed( line.substr(1,line.size()-2), " \t");
 			continue;
 		}
 
@@ -221,8 +221,8 @@ void IniFile::ParseInput(const list<string> &rows)
 			 << " " << String::Trimmed(keyval.back(), " ")
 			 << " to section " << this->currsection<<endl;
 		this->operator [](this->currsection).insert( pair<string,string>(
-					String::Trimmed(keyval.front(), " "),
-					String::Trimmed(keyval.back(), " ") ));
+					String::Trimmed(keyval.front(), " \t"),
+					String::Trimmed(keyval.back(), " \t") ));
 	}
 
 }

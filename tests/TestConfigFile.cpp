@@ -13,6 +13,8 @@ using namespace std;
 
 #include "ConfigFile.h"
 
+
+#if 0 // ????
 int cp(const char *from, const char *to)
 {
 	int fd_to, fd_from;
@@ -71,7 +73,7 @@ int cp(const char *from, const char *to)
 	errno = saved_errno;
 	return -1;
 }
-
+#endif
 
 
 void TestConfigFile::setUp()
@@ -89,11 +91,29 @@ void TestConfigFile::setUp()
 		<< "\n";
 	ofs.close();
 
+
+	ofstream ofs2("test2.cfg");
+
+	ofs2 << "# A comment\n"
+		<< "A line without value\n"
+		<< "\n"
+		<< "\t[s1]\n"
+		<< "key 1 = val 1\n"
+		<< "\n"
+		<< "key1 = val1\n"
+		<< "[ s2\t]\n"
+		<< "key2 = A longer value\n"
+		<< "key3 = 12\n"
+		<< "\n";
+	ofs2.close();
+
+
 }
 
 void TestConfigFile::tearDown()
 {
 	unlink("test.cfg");
+	unlink("test2.cfg");
 }
 
 void TestConfigFile::Test()
@@ -136,7 +156,39 @@ void TestConfigFile::TestIni()
 
 	Utils::IniFile ini(data);
 
-	ini.Dump();
-	CPPUNIT_ASSERT_EQUAL( ini.ValueOrDefault("section1","aa",""), string("bb"));
+	//ini.Dump();
+	CPPUNIT_ASSERT_EQUAL( ini.Value("section1","aa",""), string("bb"));
+	CPPUNIT_ASSERT_EQUAL( ini.Value("section1","aas","cc"), string("cc"));
 
+}
+
+void TestConfigFile::TestIniS3ql()
+{
+	list<string> data=
+	{
+		";Hello world!",
+		"[section1]",
+		"aa : bb",
+		"[s2]",
+		"	hello:world"
+	};
+
+	Utils::IniFile ini(data, ":",';');
+
+	//ini.Dump();
+
+	CPPUNIT_ASSERT_EQUAL( ini.Value("section1","aa"), string("bb"));
+
+	ini.UseSection("s2");
+	CPPUNIT_ASSERT_EQUAL( ini.ValueOrDefault("hello",""), string("world"));
+}
+
+void TestConfigFile::TestIniFile()
+{
+	Utils::IniFile i("test2.cfg");
+	i.Dump();
+	CPPUNIT_ASSERT_EQUAL( i.Value("s1","key 1"), string("val 1"));
+	CPPUNIT_ASSERT_EQUAL( i.Value("s1","key1"), string("val1"));
+	CPPUNIT_ASSERT_EQUAL( i.Value("s2","key2"), string("A longer value"));
+	CPPUNIT_ASSERT_EQUAL( i.Value("s2","key3"), string("12"));
 }

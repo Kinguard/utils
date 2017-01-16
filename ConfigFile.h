@@ -58,7 +58,7 @@ public:
 
 	void UseSection( const string& section);
 
-	string ValueOrDefault(const string& section, const string& key, const string& defval="");
+	string Value(const string& section, const string& key, const string& defval="");
 	string ValueOrDefault(const string& key, const string& defval="");
 
 	void Dump();
