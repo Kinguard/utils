@@ -1,3 +1,9 @@
+libutils (1.5.7-2) vili; urgency=medium
+
+  * Armhf build. 
+
+ -- PA Nilsson <pa@openproducts.se>  Fri, 20 Jan 2017 08:26:06 +0000
+
 libutils (1.5.7-1) vili; urgency=medium
 
   * Added IniFile class
