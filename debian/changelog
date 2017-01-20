@@ -1,3 +1,9 @@
+libutils (1.5.7-1) vili; urgency=medium
+
+  * Added IniFile class
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 16 Jan 2017 12:35:39 +0100
+
 libutils (1.5.6-1) vili; urgency=medium
 
   * Added realpath fileutil
