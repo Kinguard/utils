@@ -166,23 +166,41 @@ void TestConfigFile::TestIni()
 
 void TestConfigFile::TestIniS3ql()
 {
-	list<string> data=
 	{
-		";Hello world!",
-		"[section1]",
-		"aa : bb",
-		"[s2]",
-		"	hello:world"
-	};
+		list<string> data=
+		{
+			";Hello world!",
+			"[section1]",
+			"aa : bb",
+			"[s2]",
+			"	hello:world"
+		};
 
-	Utils::IniFile ini(data, ":",';');
+		Utils::IniFile ini(data, ":",';');
 
-	//ini.Dump();
+		//ini.Dump();
 
-	CPPUNIT_ASSERT_EQUAL( ini.Value("section1","aa"), string("bb"));
+		CPPUNIT_ASSERT_EQUAL( ini.Value("section1","aa"), string("bb"));
 
-	ini.UseSection("s2");
-	CPPUNIT_ASSERT_EQUAL( ini.ValueOrDefault("hello",""), string("world"));
+		ini.UseSection("s2");
+		CPPUNIT_ASSERT_EQUAL( ini.ValueOrDefault("hello",""), string("world"));
+	}
+
+	// Test that we allow delimiter in value, bugfix
+	{
+		list<string> data=
+		{
+			"[s3op]",
+			"storage-url: s3op://",
+			"fs-passphrase: fYyLnwBUYpun0k3o9e0WGY6N7Vo="
+		};
+
+		Utils::IniFile ini(data, ":",';');
+
+		//ini.Dump();
+
+		CPPUNIT_ASSERT_EQUAL( ini.ValueOrDefault("storage-url",""), string("s3op://"));
+	}
 }
 
 void TestConfigFile::TestIniFile()

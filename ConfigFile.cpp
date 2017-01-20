@@ -236,7 +236,7 @@ void IniFile::ParseInput(const list<string> &rows)
 			continue;
 		}
 
-		list<string> keyval = String::Split(line, this->delimiter.c_str());
+		list<string> keyval = String::Split(line, this->delimiter.c_str(), 2);
 		if( keyval.size() != 2 )
 		{
 			continue;
