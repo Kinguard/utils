@@ -26,7 +26,7 @@ using Utils::Net::UnixStreamServerSocket;
 
 using namespace std;
 
-#define ECHO_SERVER "tor-desktop"
+#define ECHO_SERVER "localhost"
 
 #include "String.h"
 #include "Thread.h"
