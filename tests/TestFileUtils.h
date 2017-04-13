@@ -12,7 +12,9 @@ class TestFileUtils: public CppUnit::TestFixture
 	CPPUNIT_TEST( testFileRead );
 	CPPUNIT_TEST( testFileWrite );
 	CPPUNIT_TEST( testRealPath );
-	CPPUNIT_TEST_SUITE_END();
+    CPPUNIT_TEST( testMoveFile );
+    CPPUNIT_TEST( testMoveDir );
+    CPPUNIT_TEST_SUITE_END();
 public:
 	void setUp();
 	void tearDown();
@@ -23,6 +25,8 @@ public:
 	void testFileRead();
 	void testFileWrite();
 	void testRealPath();
+    void testMoveFile();
+    void testMoveDir();
 //Todo: make rest of tests
 };
 

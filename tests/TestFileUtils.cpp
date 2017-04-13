@@ -20,10 +20,17 @@ void TestFileUtils::setUp(){
 void TestFileUtils::tearDown(){
 	// Remove all files in testdir
 	list<string> files = File::Glob(TESTDIR "*");
-	for( const string& file: files)
-	{
-		unlink(file.c_str() );
-	}
+    for( const string& file: files)
+    {
+        if (File::DirExists(file))
+        {
+            rmdir(file.c_str());
+        }
+        else
+        {
+            unlink(file.c_str());
+        }
+    }
 
 	rmdir(TESTDIR);
 }
@@ -55,8 +62,7 @@ void TestFileUtils::testLinkExists()
 	CPPUNIT_ASSERT( File::LinkExists("nonsens") == false );
 }
 
-void
-TestFileUtils::testFileRead ()
+void TestFileUtils::testFileRead ()
 {
 	std::vector<unsigned char> test={1,2,3,4,5,6,7,8,9,10};
 	std::vector<unsigned char> verify;
@@ -86,4 +92,28 @@ void TestFileUtils::testRealPath()
 	CPPUNIT_ASSERT_EQUAL( File::RealPath( TESTDIR "rctest.txt"),  File::RealPath( TESTDIR "rctest.txt"));
 	CPPUNIT_ASSERT_EQUAL( std::string( TESTDIR "rctest.txt"),  File::RealPath( TESTDIR "rctest.link.txt"));
 	CPPUNIT_ASSERT_THROW( File::RealPath( TESTDIR "rctest.nonsens.txt"), ErrnoException );
+}
+
+void TestFileUtils::testMoveFile()
+{
+    File::Write(TESTDIR "dummy1.txt", "Hello World!",0660);
+    File::Write(TESTDIR "dummy2.txt", "Hello World!",0660);
+
+    File::Move( TESTDIR "dummy1.txt", TESTDIR "newdummy.txt");
+    CPPUNIT_ASSERT( File::FileExists( TESTDIR "newdummy.txt") );
+    CPPUNIT_ASSERT( File::FileExists( TESTDIR "dummy.txt") == false );
+
+    CPPUNIT_ASSERT_THROW( File::Move( TESTDIR "newdummy.txt", TESTDIR "dummy2.txt"), ErrnoException);
+}
+
+void TestFileUtils::testMoveDir()
+{
+    mkdir(TESTDIR "/tmp",0700);
+
+    File::Move( TESTDIR "/tmp", TESTDIR "/newdir");
+    CPPUNIT_ASSERT( File::DirExists( TESTDIR "/newdir") );
+    CPPUNIT_ASSERT( File::DirExists( TESTDIR "/tmp") == false );
+
+    CPPUNIT_ASSERT_THROW( File::Move( TESTDIR "/missing", TESTDIR "/dontcare"), std::runtime_error);
+    CPPUNIT_ASSERT_THROW( File::Move( TESTDIR "/newdir", "/root"), ErrnoException);
 }

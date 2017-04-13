@@ -1,3 +1,9 @@
+libutils (1.5.8-1) vili; urgency=medium
+
+  * Added 'File::Move' 
+
+ -- PA Nilsson <pa@openproducts.se>  Thu, 13 Apr 2017 09:28:15 +0200
+
 libutils (1.5.7-4) vili; urgency=medium
 
   * Armhf build. 

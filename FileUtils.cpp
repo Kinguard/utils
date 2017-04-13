@@ -290,6 +290,35 @@ void Utils::File::Delete(const std::string& path)
 	}
 }
 
+void Utils::File::Move(const std::string& s_path,const std::string& t_path)
+{
+    /* File */
+    if( FileExists( s_path ) ) {
+        if( FileExists( t_path ) ) {
+            throw ErrnoException("Target already exists");
+        }
+        else
+        {
+            if( rename( s_path.c_str(), t_path.c_str() ) < 0 ){
+                throw ErrnoException("Failed to move file");
+            }
+        }
+    /* Dir */
+    }else if( Utils::File::DirExists( s_path )){
+        if( DirExists( t_path ) ) {
+            throw ErrnoException("Target already exists");
+        }
+        else
+        {
+            if( rename( s_path.c_str(), t_path.c_str() ) < 0 ){
+                throw ErrnoException("Failed to move dir");
+            }
+        }
+    }else{
+        throw std::runtime_error("Unknown media to move");
+    }
+}
+
 string Utils::File::GetPath(const string &s)
 {
 	string::size_type pos;

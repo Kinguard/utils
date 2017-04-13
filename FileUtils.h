@@ -86,6 +86,8 @@ std::list<std::string> Glob(const std::string& pattern);
 
 void Delete(const std::string& path);
 
+void Move(const std::string& s_path, const std::string& t_path);
+
 }//NS File
 }//NS Utils
 
