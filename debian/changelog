@@ -1,3 +1,15 @@
+libutils (1.5.10) vili; urgency=medium
+
+  * Bump for another rebuild
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 11 Jul 2017 11:55:37 +0200
+
+libutils (1.5.9) vili; urgency=medium
+
+  * Move to native versioning to please buildsystem
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 11 Jul 2017 11:20:37 +0200
+
 libutils (1.5.8-1) vili; urgency=medium
 
   * Added 'File::Move' 
