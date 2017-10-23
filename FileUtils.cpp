@@ -115,8 +115,6 @@ void Utils::File::Write(const std::string& path, const std::string& content,
 
 		of<<content<<flush;
 	}
-
-	close(fd);
 }
 
 void Utils::File::Write(const std::string& path,
@@ -137,8 +135,6 @@ void Utils::File::Write(const std::string& path,
 
 		of<<flush;
 	}
-
-	close(fd);
 }
 
 void
