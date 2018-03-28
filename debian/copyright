@@ -3,8 +3,8 @@ Upstream-Name: libutils
 Source: http://www.krill.se 
 
 Files: *
-Copyright: 2012-2014 Tor Krill <tor@krill.se>
-License: GPL-3.0+
+Copyright: 2012-2018 Tor Krill <tor@krill.se>
+License: AGPLv3
 
 Files: debian/*
 Copyright: 2014 Tor Krill <tor@openproducts.se>
