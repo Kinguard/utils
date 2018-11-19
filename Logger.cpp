@@ -162,5 +162,23 @@ ClassWriter::ClassWriter() :
 		name("unnamed"), lifecycle(false) {
 }
 
+/*
+ * Scoped log implementation
+ */
+
+ScopedLog::ScopedLog(const std::string &name): name(name)
+{
+	logg << Logger::Debug << name << " start"<<lend;
+}
+
+ScopedLog::~ScopedLog()
+{
+	logg << Logger::Debug << name << " stop"<<lend;
+}
+
+Endl::~Endl(){}
+
+Manip::~Manip(){}
+
 
 }

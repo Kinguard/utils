@@ -1,3 +1,9 @@
+libutils (1.5.12) vili; urgency=medium
+
+  * Add ScopedLog class to logger
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 19 Nov 2018 11:46:01 +0100
+
 libutils (1.5.11) vili; urgency=medium
 
   * Fix minor bug in File::Write

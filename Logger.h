@@ -29,6 +29,7 @@
 #define LOGGER_H_
 
 #include "Exceptions.h"
+#include "ClassTools.h"
 
 #include <functional>
 #include <iostream>
@@ -46,7 +47,7 @@ class Manip {
 public:
 	Manip(){}
 	virtual void operator()(Logger& logger) = 0;
-	virtual ~Manip(){}
+	virtual ~Manip();
 };
 
 class Logger {
@@ -110,7 +111,7 @@ public:
 		logger.flush();
 	}
 
-	virtual ~Endl(){}
+	virtual ~Endl();
 };
 
 extern Endl lend;
@@ -131,6 +132,19 @@ private:
 	std::string name;
 	bool lifecycle;
 };
+
+class ScopedLog: public NoCopy
+{
+private:
+	std::string name;
+public:
+	ScopedLog(const std::string& name);
+
+	virtual ~ScopedLog();
+
+};
+
+
 
 } // End Namespace Utils
 

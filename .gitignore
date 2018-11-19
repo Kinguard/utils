@@ -2,7 +2,7 @@ obj-x86_64-linux-gnu
 build
 tests/dotest
 .settings
-CMakeLists.txt.user
+CMakeLists.txt.user*
 debian/files
 debian/libutils1
 debian/libutils1*.debhelper*
@@ -10,3 +10,4 @@ debian/libutils-dev
 debian/tmp
 debian/*.substvars
 debian/*.log
+debian/.debhelper
