@@ -14,25 +14,35 @@ CPPUNIT_TEST_SUITE_REGISTRATION (TestFileUtils);
 #define TESTDIR "/tmp/testfiles/"
 
 void TestFileUtils::setUp(){
+	cout << "\nSetup" << endl;
 	mkdir(TESTDIR,0700);
 }
 
-void TestFileUtils::tearDown(){
-	// Remove all files in testdir
-	list<string> files = File::Glob(TESTDIR "*");
-    for( const string& file: files)
-    {
-        if (File::DirExists(file))
-        {
-            rmdir(file.c_str());
-        }
-        else
-        {
-            unlink(file.c_str());
-        }
-    }
 
-	rmdir(TESTDIR);
+static void deldir(const string path)
+{
+	list<string> files = File::Glob(path + "/*");
+
+	for( const string& file: files)
+	{
+		if (File::DirExists(file))
+		{
+			deldir(file);
+		}
+		else
+		{
+			unlink(file.c_str());
+		}
+	}
+
+	rmdir(path.c_str() );
+}
+
+
+void TestFileUtils::tearDown(){
+	cout << "\nTeardown" << endl;
+
+	deldir(TESTDIR);
 }
 
 void TestFileUtils::testFileExists()
@@ -115,5 +125,32 @@ void TestFileUtils::testMoveDir()
     CPPUNIT_ASSERT( File::DirExists( TESTDIR "/tmp") == false );
 
     CPPUNIT_ASSERT_THROW( File::Move( TESTDIR "/missing", TESTDIR "/dontcare"), std::runtime_error);
-    CPPUNIT_ASSERT_THROW( File::Move( TESTDIR "/newdir", "/root"), ErrnoException);
+	CPPUNIT_ASSERT_THROW( File::Move( TESTDIR "/newdir", "/root"), ErrnoException);
+}
+
+void TestFileUtils::testMkDir()
+{
+	cout << "\ntestMkdir"<< endl;
+	struct stat st;
+	stringstream ss;
+
+	ss << TESTDIR << "/tmpdir";
+
+	mkdir( ss.str().c_str()  , 0700);
+
+	ss << "/t1";
+	string pdir = ss.str();
+	File::MkDir( ss.str(), 0755);
+
+	CPPUNIT_ASSERT( stat( ss.str().c_str(), &st ) == 0);
+	CPPUNIT_ASSERT( (static_cast<int>(st.st_mode) & ~S_IFMT) == 0755 );
+
+	ss << "/t2";
+	File::MkPath( ss.str(), 0700 );
+	CPPUNIT_ASSERT( stat( ss.str().c_str(), &st ) == 0);
+	CPPUNIT_ASSERT( (static_cast<int>(st.st_mode) & ~S_IFMT) == 0700 );
+
+	CPPUNIT_ASSERT( stat( pdir.c_str(), &st ) == 0);
+	CPPUNIT_ASSERT( (static_cast<int>(st.st_mode) & ~S_IFMT) == 0755 );
+
 }
