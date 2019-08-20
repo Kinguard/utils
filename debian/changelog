@@ -1,3 +1,9 @@
+libutils (1.5.17~test1) vili; urgency=medium
+
+  * Bump version
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 20 Aug 2019 10:39:05 +0200
+
 libutils (1.5.16) unstable; urgency=medium
 
   * Another repo
