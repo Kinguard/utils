@@ -1,3 +1,63 @@
+libutils (1.5.16) unstable; urgency=medium
+
+  * Another repo
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 03 Jun 2019 10:41:27 +0200
+
+libutils (1.5.15) vili; urgency=medium
+
+  * Testing meta directive
+
+ -- Tor Krill <tor@openproducts.se>  Wed, 29 May 2019 17:12:50 +0200
+
+libutils (1.5.14) stretch-kgp-unstable; urgency=medium
+
+  * More buildd test
+
+ -- Tor Krill <tor@openproducts.se>  Wed, 29 May 2019 16:31:22 +0200
+
+libutils (1.5.13~test90+4) stretch-test-unstable; urgency=medium
+
+  * Bump to test remote
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 28 May 2019 16:20:33 +0200
+
+libutils (1.5.13~test90+3) stretch-test-unstable; urgency=medium
+
+  * More lintian
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 27 May 2019 14:58:51 +0200
+
+libutils (1.5.13~test90+2) stretch-test-unstable; urgency=medium
+
+  * Lintian fixes
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 27 May 2019 14:50:11 +0200
+
+libutils (1.5.13~test90+1) stretch-test-unstable; urgency=medium
+
+  * And again..
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 27 May 2019 14:22:39 +0200
+
+libutils (1.5.13~test1+1) stretch-test-unstable; urgency=medium
+
+  * And again
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 27 May 2019 14:21:21 +0200
+
+libutils (1.5.13~test1) stretch-test-unstable; urgency=medium
+
+  * New version to try please buildd
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 27 May 2019 14:19:33 +0200
+
+libutils (1.5.13) stretch-test-unstable; urgency=medium
+
+  * mini-buildd test
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 27 May 2019 14:07:10 +0200
+
 libutils (1.5.12) vili; urgency=medium
 
   * Add ScopedLog class to logger
