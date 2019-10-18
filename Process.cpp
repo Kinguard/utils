@@ -22,12 +22,73 @@
 */
 
 #include <sstream>
+#include <csignal>
 
 #include "Process.h"
+
+// We really need SIGCHLD for pclose to be able to fetch
+// exitcodes etc.
+// We check and temporarily enable signal if ignored
+
+
+/**
+ * @brief check_signal
+ * @param act sigaction to operate on.
+ * @return tuple blocked or not, operation status, status message
+ */
+static tuple<bool, bool, string> check_signal(struct sigaction *act)
+{
+	bool temp_unblocked = false;
+	if( sigaction(SIGCHLD, nullptr, act) < 0 )
+	{
+		return make_tuple(false, false,"Failed to fetch signal status");
+	}
+
+	if( ! (act->sa_flags & SA_SIGINFO) )
+	{
+		if( act->sa_handler == SIG_IGN )
+		{
+			temp_unblocked = true;
+			act->sa_handler = SIG_DFL;
+
+			if( sigaction(SIGCHLD, act, nullptr) < 0 )
+			{
+				return make_tuple(false, false, "Failed to alter signal status");
+			}
+		}
+	}
+	return make_tuple(temp_unblocked, true, "OK");
+}
+
+static void reset_signal(struct sigaction *act)
+{
+	if( ! (act->sa_flags & SA_SIGINFO) )
+	{
+		if( act->sa_handler == SIG_DFL)
+		{
+			act->sa_handler = SIG_IGN;
+
+			if( sigaction(SIGCHLD, act, nullptr) < 0 )
+			{
+				// Not much todo :(
+			}
+		}
+	}
+}
 
 
 tuple<bool, string> Utils::Process::Exec(const string &cmd)
 {
+	bool temp_unblocked, sig_result;
+	string res_desc;
+	struct sigaction act;
+	tie(temp_unblocked, sig_result, res_desc) = check_signal(&act);
+
+	if( !sig_result )
+	{
+		return make_tuple(sig_result, res_desc);
+	}
+
 	FILE* pipe = popen(cmd.c_str(), "re");
 
 	if (!pipe)
@@ -40,7 +101,7 @@ tuple<bool, string> Utils::Process::Exec(const string &cmd)
 
 	while(!feof(pipe))
 	{
-		if(fgets(buffer, 128, pipe) != NULL)
+		if(fgets(buffer, 128, pipe) != nullptr)
 		{
 			result << buffer;
 		}
@@ -48,6 +109,11 @@ tuple<bool, string> Utils::Process::Exec(const string &cmd)
 	int res = pclose(pipe);
 
 	bool ret = !((res < 0 ) ||  WEXITSTATUS(res) != 0);
+
+	if( temp_unblocked )
+	{
+		reset_signal(&act);
+	}
 
 	return make_tuple( ret, result.str());
 }

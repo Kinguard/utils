@@ -1,3 +1,10 @@
+libutils (1.5.17~test2) vili; urgency=medium
+
+  * Process, try intercept ignored sigchld signal and unblock
+    temporarily
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 18 Oct 2019 14:03:00 +0200
+
 libutils (1.5.17~test1) vili; urgency=medium
 
   * Bump version
