@@ -1,3 +1,9 @@
+libutils (1.5.17) vili; urgency=medium
+
+  * Add "safe" write functions and expand test cases
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 04 Nov 2019 16:44:20 +0100
+
 libutils (1.5.17~test2) vili; urgency=medium
 
   * Process, try intercept ignored sigchld signal and unblock

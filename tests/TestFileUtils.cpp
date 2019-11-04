@@ -14,7 +14,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION (TestFileUtils);
 #define TESTDIR "/tmp/testfiles/"
 
 void TestFileUtils::setUp(){
-	cout << "\nSetup" << endl;
+	//cout << "\nSetup" << endl;
 	mkdir(TESTDIR,0700);
 }
 
@@ -40,7 +40,7 @@ static void deldir(const string path)
 
 
 void TestFileUtils::tearDown(){
-	cout << "\nTeardown" << endl;
+	//cout << "\nTeardown" << endl;
 
 	deldir(TESTDIR);
 }
@@ -86,10 +86,58 @@ void TestFileUtils::testFileRead ()
 
 void TestFileUtils::testFileWrite()
 {
+	// Write string
 	CPPUNIT_ASSERT_THROW( File::Write("tmpfiless/test-1.txt","Hello World!",0666), ErrnoException);
 	CPPUNIT_ASSERT_NO_THROW( File::Write( TESTDIR "test-1.txt","Hello World!",0666) );
 	CPPUNIT_ASSERT( File::FileExists( TESTDIR "test-1.txt") );
 	unlink( TESTDIR "test-1.txt");
+
+	// Write list of strings
+	list<string> data = {"hello\n", "cruel\n", "world\n"};
+	list<string> empty, verify;
+
+	CPPUNIT_ASSERT_NO_THROW(File::Write(TESTDIR "test-list.txt", data , 0666));
+	CPPUNIT_ASSERT( File::FileExists( TESTDIR "test-list.txt") );
+	CPPUNIT_ASSERT_NO_THROW( verify = File::GetContent( TESTDIR "test-list.txt") );
+	CPPUNIT_ASSERT_EQUAL( data.size(), verify.size());
+	unlink( TESTDIR "test-list.txt");
+
+	CPPUNIT_ASSERT_NO_THROW(File::Write(TESTDIR "test-list.txt", empty , 0666));
+	CPPUNIT_ASSERT_NO_THROW( verify = File::GetContent( TESTDIR "test-list.txt") );
+	CPPUNIT_ASSERT( verify.size() == 0);
+	unlink( TESTDIR "test-list.txt");
+
+	// Safe write string
+	CPPUNIT_ASSERT_NO_THROW( File::SafeWrite(TESTDIR "safe.txt", "Hello world", 0666));
+	CPPUNIT_ASSERT( File::FileExists( TESTDIR "safe.txt") );
+
+	struct stat st;
+	CPPUNIT_ASSERT_EQUAL( stat( TESTDIR "safe.txt", &st), 0 );
+	CPPUNIT_ASSERT( st.st_size > 0 );
+
+	// Rewrite existing file
+	CPPUNIT_ASSERT_NO_THROW( File::SafeWrite(TESTDIR "safe.txt", "Hello again", 0666));
+	CPPUNIT_ASSERT( File::FileExists( TESTDIR "safe.txt") );
+
+	unlink( TESTDIR "safe.txt");
+
+	// Safe write  stringlist
+	CPPUNIT_ASSERT_NO_THROW( File::SafeWrite(TESTDIR "safe.txt", data, 0666));
+	CPPUNIT_ASSERT( File::FileExists( TESTDIR "safe.txt") );
+	CPPUNIT_ASSERT_NO_THROW( verify = File::GetContent( TESTDIR "safe.txt") );
+	CPPUNIT_ASSERT_EQUAL( data.size(), verify.size());
+
+	unlink( TESTDIR "safe.txt");
+
+	// Safe write buffer
+	char buf[1024]={0x0, 0x10, 0x1a, 0x1f};
+	CPPUNIT_ASSERT_NO_THROW( File::SafeWrite(TESTDIR "safe.txt", static_cast<void*>(buf), sizeof(buf), 0666));
+	CPPUNIT_ASSERT( File::FileExists( TESTDIR "safe.txt") );
+
+	CPPUNIT_ASSERT_EQUAL( stat( TESTDIR "safe.txt", &st), 0 );
+	CPPUNIT_ASSERT_EQUAL( st.st_size, static_cast<long>(sizeof(buf)) );
+
+	unlink( TESTDIR "safe.txt");
 }
 
 void TestFileUtils::testRealPath()
@@ -130,7 +178,7 @@ void TestFileUtils::testMoveDir()
 
 void TestFileUtils::testMkDir()
 {
-	cout << "\ntestMkdir"<< endl;
+	//cout << "\ntestMkdir"<< endl;
 	struct stat st;
 	stringstream ss;
 

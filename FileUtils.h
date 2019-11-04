@@ -44,10 +44,61 @@ bool SocketExists(const std::string& path);
 std::string GetContentAsString(const std::string& path, bool keeplinending=false);
 std::list<std::string> GetContent(const std::string& path);
 
+/**
+ * @brief Write write string to file named with path
+ * @param path Name and path of file
+ * @param content String content to write
+ * @param mode Octal creation mode
+ */
 void Write(const std::string& path, const std::string& content, mode_t mode);
-void Write(const std::string& path, std::list<std::string>& content, mode_t mode);
 
+
+/**
+ * @brief SafeWrite same function as write but makes sure write succeds to tmp file
+ *        before overwriting the destination
+ *
+ *        Note, tmp file will be created in same directory as destination file.
+ *
+ * @param path Where to write the file, path and name
+ * @param content string to write as file contents
+ * @param mode file permissions to use when creating file
+ */
+void SafeWrite(const std::string& path, const std::string& content, mode_t mode);
+
+
+/**
+ * @brief Write list of strings
+ * @param path Where to write, path and filename
+ * @param content list with strings to be written
+ * @param mode File permission mode to create file with
+ */
+void Write(const std::string& path, const std::list<std::string>& content, mode_t mode);
+
+/**
+ * @brief Safely write list of strings, write to tempfile on success move to target
+ * @param path Where to write, path and filename
+ * @param content list with strings to be written
+ * @param mode File permission mode to create file with
+ */
+void SafeWrite(const std::string& path, std::list<std::string>& content, mode_t mode);
+
+/**
+ * @brief Write buffer to file
+ * @param path Where to write, path and filename
+ * @param buf buffer with content to write
+ * @param len lenght of buffer in bytes
+ * @param mode File permission mode to create file with
+ */
 void Write(const std::string& path, const void* buf, size_t len, mode_t mode);
+
+/**
+ * @brief Safeky write buffer to file, i.e. first write to tempfile and then rename
+ * @param path Where to write, path and filename
+ * @param buf buffer with content to write
+ * @param len lenght of buffer in bytes
+ * @param mode File permission mode to create file with
+ */
+void SafeWrite(const std::string& path, const void* buf, size_t len, mode_t mode);
 
 template <class T>
 void WriteVector(const std::string& path, const T& v, mode_t mode)

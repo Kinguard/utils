@@ -26,12 +26,14 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <cstdlib>
 #include <fcntl.h>
 #include <errno.h>
 #include <glob.h>
 
 #include <ext/stdio_filebuf.h>
 #include <fstream>
+#include <tuple>
 
 using namespace std;
 
@@ -101,109 +103,80 @@ std::list<std::string> Utils::File::GetContent(const std::string& path)
 	return ret;
 }
 
+static int do_open(const string& path, mode_t mode, bool write = true)
+{
+	int fd, flags = write?O_WRONLY|O_CREAT|O_TRUNC:O_RDONLY;
+
+	if((fd=open(path.c_str(),flags,mode))<0){
+		throw Utils::ErrnoException("Unable to open file '"+path+"' for " + string(write?"writing":"reading"));
+	}
+	return fd;
+}
+
+static void do_write(int fd, const void* buf, size_t len)
+{
+	size_t write_total = 0, to_write = len;
+
+	while ( write_total < to_write )
+	{
+		ssize_t written = write(fd, (void*)( (size_t)buf + write_total), to_write - write_total );
+		if( written < 0 )
+		{
+			throw Utils::ErrnoException("Write failed");
+		}
+		write_total += static_cast<size_t>(written);
+	}
+}
+
+
+static void do_write(int fd, const std::string& content)
+{
+	do_write( fd, content.c_str(), content.size());
+}
+
 void Utils::File::Write(const std::string& path, const std::string& content,
 		mode_t mode)
 {
-	int fd;
-	if((fd=open(path.c_str(),O_WRONLY|O_CREAT|O_TRUNC,mode))<0){
-		throw ErrnoException("Unable to open file '"+path+"' for writing");
-	}
+	int fd = do_open(path, mode);
 
+	do_write( fd, content );
+
+	close(fd);
+}
+
+static void do_write(int fd, const std::list<std::string>& content)
+{
+	for(const auto& line: content)
 	{
-		__gnu_cxx::stdio_filebuf<char> fb(fd,std::ios_base::out);
-		iostream of(&fb);
-
-		of<<content<<flush;
+		do_write(fd, line.c_str(), line.size());
 	}
 }
 
 void Utils::File::Write(const std::string& path,
-		std::list<std::string>& content, mode_t mode)
+		const std::list<string> &content, mode_t mode)
 {
-	int fd;
-	if((fd=open(path.c_str(),O_WRONLY|O_CREAT|O_TRUNC,mode))<0){
-		throw ErrnoException("Unable to open file for writing");
-	}
+	int fd = do_open(path, mode);
 
-	{
-		__gnu_cxx::stdio_filebuf<char> fb(fd,std::ios_base::out);
-		iostream of(&fb);
+	do_write(fd, content);
 
-		for(list<string>::iterator sIt=content.begin();sIt!=content.end();sIt++){
-			of << *sIt;
-		}
-
-		of<<flush;
-	}
+	close(fd);
 }
 
 void
 Utils::File::Write ( const std::string& path, const void* buf, size_t len,
 		mode_t mode )
 {
-	int fd;
-	if((fd=open(path.c_str(),O_WRONLY|O_CREAT|O_TRUNC,mode))<0){
-		throw ErrnoException("Unable to open file for writing");
-	}
-	size_t write_total = 0, to_write = len;
+	int fd = do_open(path, mode);
 
-	while ( write_total < to_write )
-	{
-		ssize_t written = write(fd, (void*)((size_t)buf + write_total), to_write - write_total );
-		if( written < 0 )
-		{
-			throw ErrnoException("Write failed");
-		}
-		write_total += written;
-	}
+	do_write( fd, buf, len);
 
 	close(fd);
 }
-
-
-#if 0
-void
-Utils::File::Read ( const std::string& path, std::vector<unsigned char>& data )
-{
-	struct stat st;
-	if(stat(path.c_str(),&st)){
-		throw Utils::ErrnoException("Failed to stat file");
-	}
-	// Make sure we have room for data
-	data.resize(st.st_size);
-
-	int fd;
-	if((fd=open(path.c_str(),O_RDONLY))<0){
-		throw ErrnoException("Unable to open file '"+path+"' for reading");
-	}
-
-	size_t read_total = 0;
-	ssize_t bytes_read;
-	do
-	{
-		bytes_read = read(fd, &data[read_total], st.st_size - read_total);
-		if(bytes_read < 0 )
-		{
-			throw ErrnoException("Failed to read file '"+path+"'");
-		}
-		if( bytes_read > 0 )
-		{
-			read_total += bytes_read;
-		}
-
-	}while( bytes_read>0);
-
-	close(fd);
-}
-#endif
 
 void
 Utils::File::Read ( const std::string& path, const void* buf, size_t len )
 {
-	int fd;
-	if((fd=open(path.c_str(),O_RDONLY))<0){
-		throw ErrnoException("Unable to open file '"+path+"' for reading");
-	}
+	int fd = do_open(path, 0, false);
 
 	size_t read_total = 0;
 	ssize_t bytes_read;
@@ -216,7 +189,7 @@ Utils::File::Read ( const std::string& path, const void* buf, size_t len )
 		}
 		if( bytes_read > 0 )
 		{
-			read_total += bytes_read;
+			read_total += static_cast<size_t>(bytes_read);
 		}
 
 	}while( bytes_read>0);
@@ -254,7 +227,7 @@ std::list<std::string> Utils::File::Glob(const std::string& pattern)
 	glob_t gb;
 	int ret;
 
-	if((ret=glob(pattern.c_str(),GLOB_NOSORT,NULL,&gb))){
+	if((ret=glob(pattern.c_str(),GLOB_NOSORT,nullptr,&gb))){
 		if(ret!=GLOB_NOMATCH){
 			throw ErrnoException("Failed to glob");
 		}
@@ -356,4 +329,88 @@ string Utils::File::RealPath(const string &path)
 	free( rcpath );
 
 	return rpath;
+}
+
+
+static tuple<int,string> do_mkstemp(const string& path)
+{
+	string tmppath = Utils::File::GetPath(path)+"/tmpfileXXXXXX";
+	char *ctmp = new char[ tmppath.length()+1];
+
+	std::strcpy(ctmp, tmppath.c_str() );
+	int fd = mkstemp(ctmp);
+
+	if( fd < 0 )
+	{
+		throw Utils::ErrnoException("Unable to open file '"+path+"' for writing");
+	}
+
+	tmppath = ctmp;
+	delete [] ctmp;
+
+	return make_tuple(fd, tmppath);
+}
+
+void Utils::File::SafeWrite(const string &path, const string &content, mode_t mode)
+{
+	int fd;
+	string tmppath;
+
+	tie(fd, tmppath) = do_mkstemp(path);
+	do_write(fd, content );
+	close(fd);
+
+	chmod(tmppath.c_str(), mode);
+
+	// Try delete destination
+	try {
+		File::Delete(path);
+	} catch (std::runtime_error& err) {
+		(void)err;
+	}
+
+	File::Move(tmppath, path);
+}
+
+
+void Utils::File::SafeWrite(const string &path, std::list<string> &content, mode_t mode)
+{
+	int fd;
+	string tmppath;
+
+	tie(fd, tmppath) = do_mkstemp(path);
+	do_write(fd, content);
+	close(fd);
+
+	chmod(tmppath.c_str(), mode);
+
+	// Try delete destination
+	try {
+		File::Delete(path);
+	} catch (std::runtime_error& err) {
+		(void)err;
+	}
+
+	File::Move(tmppath, path);
+}
+
+void Utils::File::SafeWrite(const string &path, const void *buf, size_t len, mode_t mode)
+{
+	int fd;
+	string tmppath;
+
+	tie(fd, tmppath) = do_mkstemp(path);
+	do_write(fd, buf, len);
+	close(fd);
+
+	chmod(tmppath.c_str(), mode);
+
+	// Try delete destination
+	try {
+		File::Delete(path);
+	} catch (std::runtime_error& err) {
+		(void)err;
+	}
+
+	File::Move(tmppath, path);
 }
