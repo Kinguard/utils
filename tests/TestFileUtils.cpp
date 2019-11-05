@@ -45,6 +45,40 @@ void TestFileUtils::tearDown(){
 	deldir(TESTDIR);
 }
 
+void TestFileUtils::testFileCopy()
+{
+#define SF (TESTDIR "sourcefile.txt")
+#define DF (TESTDIR "destinationfile.txt")
+
+	CPPUNIT_ASSERT_THROW( File::Copy(SF, DF), ErrnoException);
+
+	File::Write(SF, "HELLO", 0666);
+	CPPUNIT_ASSERT_NO_THROW( File::Copy(SF, DF));
+	CPPUNIT_ASSERT_NO_THROW( File::Copy(SF, DF));
+
+	File::Write(SF, "", 0666);
+
+	CPPUNIT_ASSERT_EQUAL( 0, (int)File::Size(SF));
+	CPPUNIT_ASSERT_NO_THROW( File::Copy(SF, DF));
+
+	unlink(SF);
+	unlink(DF);
+}
+
+void TestFileUtils::testFileSize()
+{
+#define TF (TESTDIR "filesize.txt")
+	File::Write(TF, "", 0666);
+
+	CPPUNIT_ASSERT_THROW( File::Size("noname"), ErrnoException);
+
+	CPPUNIT_ASSERT_EQUAL( 0, (int)File::Size(TF) );
+	File::Write(TF, "123456789", 0666);
+	CPPUNIT_ASSERT_EQUAL( 9, (int)File::Size(TF) );
+
+	unlink(TF);
+}
+
 void TestFileUtils::testFileExists()
 {
 	CPPUNIT_ASSERT(File::FileExists("/proc/self/cmdline") );

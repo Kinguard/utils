@@ -23,6 +23,7 @@
 
 #include "FileUtils.h"
 
+#include <sys/sendfile.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -413,4 +414,71 @@ void Utils::File::SafeWrite(const string &path, const void *buf, size_t len, mod
 	}
 
 	File::Move(tmppath, path);
+}
+
+size_t Utils::File::Size(const string &path)
+{
+	struct stat st;
+	if(lstat(path.c_str(),&st)){
+		throw Utils::ErrnoException("Failed to check file");
+	}
+
+	return static_cast<size_t>(st.st_size);
+}
+
+void Utils::File::Copy(const string &source, const string &destination)
+{
+	struct stat st;
+	if( stat(source.c_str(), &st) != 0 )
+	{
+		throw ErrnoException("File::Copy failed to stat file");
+	}
+
+	if( ! File::DirExists( File::GetPath(destination) ) )
+	{
+		throw std::runtime_error("File::Copy No such destination directory");
+	}
+
+	int sd = open(source.c_str(), O_RDONLY);
+	if( sd < 0 )
+	{
+		throw ErrnoException("File::Copy: Failed to open source file");
+	}
+
+	int dd = open(destination.c_str(), O_CREAT|O_TRUNC|O_WRONLY, st.st_mode);
+	if( dd < 0 )
+	{
+		close(sd);
+		throw ErrnoException("File::Copy: Failed to open destination file");
+	}
+
+	if( st.st_size == 0)
+	{
+		// No need to copy, we are done!
+		close(dd);
+		close(sd);
+		return;
+	}
+
+	off_t writeindex = 0;
+	ssize_t res;
+	size_t written = 0;
+
+	do
+	{
+		size_t to_write = static_cast<unsigned long>(st.st_size) - written;
+		res = sendfile( dd, sd, &writeindex, to_write );
+		if( res < 0 )
+		{
+			close(dd);
+			close(sd);
+			throw ErrnoException("File::Copy: Failed to copy file");
+		}
+
+		written+=static_cast<unsigned long>(res);
+
+	}while(written < static_cast<unsigned long>(st.st_size));
+
+	close(dd);
+	close(sd);
 }

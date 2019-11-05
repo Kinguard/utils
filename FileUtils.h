@@ -45,6 +45,20 @@ std::string GetContentAsString(const std::string& path, bool keeplinending=false
 std::list<std::string> GetContent(const std::string& path);
 
 /**
+ * @brief Size Return size of a file
+ * @param path Path to file
+ * @return size of file
+ */
+size_t Size(const std::string& path);
+
+/**
+ * @brief Copy make a copy of file
+ * @param source Path to source file
+ * @param destination Path to destination including filename
+ */
+void Copy(const std::string& source, const std::string& destination);
+
+/**
  * @brief Write write string to file named with path
  * @param path Name and path of file
  * @param content String content to write
@@ -92,7 +106,7 @@ void SafeWrite(const std::string& path, std::list<std::string>& content, mode_t 
 void Write(const std::string& path, const void* buf, size_t len, mode_t mode);
 
 /**
- * @brief Safeky write buffer to file, i.e. first write to tempfile and then rename
+ * @brief Safely write buffer to file, i.e. first write to tempfile and then rename
  * @param path Where to write, path and filename
  * @param buf buffer with content to write
  * @param len lenght of buffer in bytes
@@ -120,17 +134,31 @@ void ReadVector( const std::string& path, T& v)
 
 	Read(path, &v[0], st.st_size);
 }
-//void Read(const std::string& path, std::vector<unsigned char>& data);
 
 void MkDir(const std::string& path, mode_t mode);
 void MkPath(std::string path, mode_t mode);
 
-/* Aka, dirname */
+/**
+ * @brief GetPath return path excluding last part i.e. file
+ *        aka dirname
+ * @param s Path to return dirpath from
+ * @return Directory path
+ */
 std::string GetPath(const std::string& s);
-/* Aka, basename */
+
+/**
+ * @brief GetFileName return last part of path, i.e. filename
+ *        aka basename
+ * @param s Path to retrieve filename from
+ * @return Filename
+ */
 std::string GetFileName(const std::string& s);
 
-/* return the canonicalized absolute pathname */
+/**
+ * @brief RealPath return the canonicalized absolute pathname
+ * @param path
+ * @return canonicalized absolute pathname
+ */
 std::string RealPath(const std::string& path);
 
 std::list<std::string> Glob(const std::string& pattern);

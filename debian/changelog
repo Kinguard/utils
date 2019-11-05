@@ -1,3 +1,10 @@
+libutils (1.5.18) vili; urgency=medium
+
+  * Add File Copy function
+  * Add File Size function
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 05 Nov 2019 14:32:55 +0100
+
 libutils (1.5.17) vili; urgency=medium
 
   * Add "safe" write functions and expand test cases
