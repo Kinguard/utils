@@ -25,6 +25,7 @@
 #define PROCESS_H
 
 #include <string>
+#include <list>
 #include <tuple>
 
 using namespace std;
@@ -33,7 +34,22 @@ namespace Utils {
 
 namespace Process {
 
+	/**
+	 * @brief Exec Execute command and wait for completion
+	 * @param cmd command to execute
+	 * @return Tuple bool status and string with output from stdout
+	 */
 	tuple<bool, string> Exec(const string& cmd);
+
+	/**
+	 * @brief Fork of a process and completely detach it from this process
+	 *        Working directory is / and stdin, stdout and stderr redirected
+	 *        to /dev/null (see more at man(3) daemon)
+	 * @param cmd path and executable to execute
+	 * @param args list of strings supplied to executable
+	 *
+	 */
+	void Spawn(const string& cmd, const list<string>& args={});
 
 }
 }

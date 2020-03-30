@@ -23,6 +23,10 @@
 
 #include <sstream>
 #include <csignal>
+#include <vector>
+#include <unistd.h>
+
+#include <libutils/Exceptions.h>
 
 #include "Process.h"
 
@@ -116,4 +120,44 @@ tuple<bool, string> Utils::Process::Exec(const string &cmd)
 	}
 
 	return make_tuple( ret, result.str());
+}
+
+void Utils::Process::Spawn(const string &cmd, const list<string> &args)
+{
+	pid_t pid = fork();
+
+	if( pid < 0 )
+	{
+		throw ErrnoException("Spawn: Failed to fork");
+	}
+
+	if( pid > 0 )
+	{
+		return;
+	}
+
+	if( daemon( 0, 0) < 0 )
+	{
+		exit(1);
+	}
+
+	vector<char*> cargs;
+
+	//TODO: Figure out nice way to not leak memory via strdup
+	cargs.push_back(strdup(cmd.c_str()));
+
+	for(auto arg: args)
+	{
+		cargs.push_back(strdup(arg.c_str()));
+	}
+
+	cargs.push_back(nullptr);
+
+	if( ::execvp( cmd.c_str(), &cargs[0]) == -1 )
+	{
+		perror("Spawn: execvp failed");
+		exit(1);
+	}
+
+	// Should never get here
 }
