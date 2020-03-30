@@ -81,6 +81,8 @@ public:
 	Logger& flush();
 
 	void SetLevel(LogLevel level);
+	LogLevel getLevel(void);
+
 
 	void SetLogName(const std::string& name);
 

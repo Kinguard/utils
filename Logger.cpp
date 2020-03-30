@@ -54,6 +54,11 @@ Logger::SetLevel ( LogLevel level )
 	this->level = level;
 }
 
+Logger::LogLevel Logger::getLevel()
+{
+	return this->level;
+}
+
 void
 Logger::SetLogName ( const std::string& name )
 {
