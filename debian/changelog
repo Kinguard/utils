@@ -1,3 +1,9 @@
+libutils (1.5.19) vili; urgency=medium
+
+  * Add spawn function to execute completely detached processes
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 30 Mar 2020 15:12:25 +0200
+
 libutils (1.5.18) vili; urgency=medium
 
   * Add File Copy function
