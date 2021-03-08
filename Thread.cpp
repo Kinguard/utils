@@ -57,7 +57,7 @@ void* Thread::BootstrapThread(void* obj)
 		q->PostRun();
 		q->state = Terminated;
 	}
-	return NULL;
+	return nullptr;
 
 }
 
@@ -89,11 +89,12 @@ static void* trampolin(void*  arg)
 	{
 		(*fn)();
 	}
+	return nullptr;
 }
 
 void Thread::Async(Function *fn)
 {
-	pthread_t tid;
+	pthread_t tid = 0;
 	pthread_attr_t attr;
 
 	if( pthread_attr_init(&attr) != 0 )
@@ -119,7 +120,7 @@ void Thread::Signal(int signum)
 
 int Thread::Join()
 {
-	return pthread_join( this->thread, NULL);
+	return pthread_join( this->thread, nullptr);
 }
 
 Thread::State Thread::RunState()

@@ -50,7 +50,7 @@ Shm::Shm(const string& path, size_t size, int perm, int token)
 	}
 
 
-	this->data = shmat(this->shmid, NULL, 0);
+	this->data = shmat(this->shmid, nullptr, 0);
 
 	if ( this->data == (char *) (-1) )
 	{
@@ -61,7 +61,7 @@ Shm::Shm(const string& path, size_t size, int perm, int token)
 
 void Shm::Remove()
 {
-	if ( shmctl( this->shmid, IPC_RMID, NULL ) == -1 )
+	if ( shmctl( this->shmid, IPC_RMID, nullptr ) == -1 )
 	{
 		throw ErrnoException("Failed to remove shared memory segment");
 	}
@@ -75,14 +75,6 @@ void* Shm::operator *()
 void* Shm::Value()
 {
 	return this->data;
-}
-
-Shm::~Shm()
-{
-	if (shmdt(data) == -1)
-	{
-		throw ErrnoException("Failed to detach shared memory segment");
-	}
 }
 
 } /* namespace Utils */

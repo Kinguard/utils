@@ -3,7 +3,7 @@ project( utils )
 
 set (UTILS_VERSION_MAJOR 1)
 set (UTILS_VERSION_MINOR 5)
-set (UTILS_VERSION_PATCH 19)
+set (UTILS_VERSION_PATCH 20)
 set (UTILS_VERSION "${UTILS_VERSION_MAJOR}.${UTILS_VERSION_MINOR}")
 set (UTILS_VERSION_FULL "${UTILS_VERSION}.${UTILS_VERSION_PATCH}")
 set (UTILS_APP_NAME "libutils")
@@ -76,7 +76,7 @@ set( utils_src
 	UserGroups.cpp
 	)
 
-add_definitions( -std=c++0x )
+#add_definitions( -std=c++0x )
 
 # add_library( util_objs OBJECT ${utils_src} )
 add_library( utils_static STATIC ${utils_src} )

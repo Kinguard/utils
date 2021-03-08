@@ -35,6 +35,10 @@ class ErrnoException: public std::runtime_error{
 public:
 	explicit ErrnoException(const std::string& what):runtime_error(what+" ("+std::string(strerror(errno))+")"){
 	}
+
+	explicit ErrnoException(const std::string& what, int err):runtime_error(what+" ("+std::string(strerror(err))+")"){
+	}
+
 };
 
 

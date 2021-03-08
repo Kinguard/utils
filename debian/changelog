@@ -1,3 +1,10 @@
+libutils (1.5.20) vili; urgency=medium
+
+  * Add alternative errnoexception with user specified errno
+  * Minor cleanups
+
+ -- Tor Krill <tor@openproducts.se>  Mon, 08 Mar 2021 11:02:03 +0100
+
 libutils (1.5.19) vili; urgency=medium
 
   * Add spawn function to execute completely detached processes

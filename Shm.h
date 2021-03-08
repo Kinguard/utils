@@ -37,7 +37,7 @@ public:
 	void Remove();
 	void* operator*();
 	void* Value();
-	virtual ~Shm();
+	virtual ~Shm() = default;
 private:
 	int shmid;
 	key_t token;

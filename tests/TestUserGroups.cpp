@@ -41,5 +41,5 @@ TestUserGroups::TestGroup ()
 	CPPUNIT_ASSERT_EQUAL( std::string("root"), Group::GIDToGroup(0) );
 
 	CPPUNIT_ASSERT_THROW( Group::GroupToGID("unknown group"), ErrnoException );
-	CPPUNIT_ASSERT_THROW( Group::GIDToGroup(998), ErrnoException );
+	CPPUNIT_ASSERT_THROW( Group::GIDToGroup(32768), ErrnoException );
 }
