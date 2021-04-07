@@ -24,6 +24,9 @@
 #ifndef CLASSTOOLS_H_
 #define CLASSTOOLS_H_
 
+#include <list>
+#include <functional>
+
 namespace Utils{
 
 class NoCopy
@@ -41,6 +44,34 @@ public:
 	}
 
 };
+
+class ScopedAction
+{
+public:
+
+		using Func = std::function<void()>;
+
+		ScopedAction() = default;
+		ScopedAction(const ScopedAction&) = delete;
+		auto operator=(const ScopedAction&) -> ScopedAction& = delete;
+
+		void Add(const Func& func)
+		{
+				this->funcs.push_back(func);
+		}
+
+		virtual ~ScopedAction()
+		{
+				for(auto& func: this->funcs)
+				{
+						func();
+				}
+		}
+
+private:
+		std::list<Func> funcs;
+};
+
 
 
 } // NS utils

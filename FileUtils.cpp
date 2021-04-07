@@ -29,7 +29,7 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <fcntl.h>
-#include <errno.h>
+#include <cerrno>
 #include <glob.h>
 
 #include <ext/stdio_filebuf.h>
@@ -40,7 +40,7 @@ using namespace std;
 
 static mode_t do_stat(const std::string& path )
 {
-	struct stat st;
+	struct stat st = {};
 	if(lstat(path.c_str(),&st)){
 		if( errno == ENOENT ){
 			return false;
@@ -180,7 +180,7 @@ Utils::File::Read ( const std::string& path, const void* buf, size_t len )
 	int fd = do_open(path, 0, false);
 
 	size_t read_total = 0;
-	ssize_t bytes_read;
+	ssize_t bytes_read = -1;
 	do
 	{
 		bytes_read = read(fd, (void*)((size_t)buf + read_total), len - read_total);
@@ -213,7 +213,7 @@ void Utils::File::MkPath(std::string path, mode_t mode)
 	}
 
 	string::size_type pos=0;
-	while((pos=path.find("/",pos))!=string::npos){
+	while((pos=path.find('/',pos))!=string::npos){
 		if(pos!=0){
 			if( ! Utils::File::DirExists( path.substr(0,pos) ) ){
 				MkDir(path.substr(0,pos).c_str(),mode);
@@ -226,7 +226,7 @@ void Utils::File::MkPath(std::string path, mode_t mode)
 std::list<std::string> Utils::File::Glob(const std::string& pattern)
 {
 	glob_t gb;
-	int ret;
+	int ret = 0;
 
 	if((ret=glob(pattern.c_str(),GLOB_NOSORT,nullptr,&gb))){
 		if(ret!=GLOB_NOMATCH){
@@ -236,7 +236,7 @@ std::list<std::string> Utils::File::Glob(const std::string& pattern)
 
 	list<string> res;
 	for(unsigned int i=0;i<gb.gl_pathc;i++){
-			res.push_back(gb.gl_pathv[i]);
+			res.emplace_back(gb.gl_pathv[i]);
 	}
 
 	globfree(&gb);
@@ -291,9 +291,9 @@ void Utils::File::Move(const std::string& s_path,const std::string& t_path)
 
 string Utils::File::GetPath(const string &s)
 {
-	string::size_type pos;
+	string::size_type pos = 0;
 
-	if( ( pos = s.find_last_of("/") ) != string::npos )
+	if( ( pos = s.find_last_of('/') ) != string::npos )
 	{
 		return s.substr(0 ,pos );
 	}
@@ -305,9 +305,9 @@ string Utils::File::GetPath(const string &s)
 
 string Utils::File::GetFileName(const string &s)
 {
-	string::size_type pos;
+	string::size_type pos = 0;
 
-	if( ( pos = s.find_last_of("/") ) != string::npos )
+	if( ( pos = s.find_last_of('/') ) != string::npos )
 	{
 		return s.substr( pos + 1 );
 	}
@@ -354,7 +354,7 @@ static tuple<int,string> do_mkstemp(const string& path)
 
 void Utils::File::SafeWrite(const string &path, const string &content, mode_t mode)
 {
-	int fd;
+	int fd = 0;
 	string tmppath;
 
 	tie(fd, tmppath) = do_mkstemp(path);
@@ -376,7 +376,7 @@ void Utils::File::SafeWrite(const string &path, const string &content, mode_t mo
 
 void Utils::File::SafeWrite(const string &path, std::list<string> &content, mode_t mode)
 {
-	int fd;
+	int fd = 0;
 	string tmppath;
 
 	tie(fd, tmppath) = do_mkstemp(path);
@@ -397,7 +397,7 @@ void Utils::File::SafeWrite(const string &path, std::list<string> &content, mode
 
 void Utils::File::SafeWrite(const string &path, const void *buf, size_t len, mode_t mode)
 {
-	int fd;
+	int fd = 0;
 	string tmppath;
 
 	tie(fd, tmppath) = do_mkstemp(path);
@@ -418,7 +418,7 @@ void Utils::File::SafeWrite(const string &path, const void *buf, size_t len, mod
 
 size_t Utils::File::Size(const string &path)
 {
-	struct stat st;
+	struct stat st = {};
 	if(lstat(path.c_str(),&st)){
 		throw Utils::ErrnoException("Failed to check file");
 	}
@@ -428,7 +428,7 @@ size_t Utils::File::Size(const string &path)
 
 void Utils::File::Copy(const string &source, const string &destination)
 {
-	struct stat st;
+	struct stat st = {};
 	if( stat(source.c_str(), &st) != 0 )
 	{
 		throw ErrnoException("File::Copy failed to stat file");
@@ -461,7 +461,7 @@ void Utils::File::Copy(const string &source, const string &destination)
 	}
 
 	off_t writeindex = 0;
-	ssize_t res;
+	ssize_t res = 0;
 	size_t written = 0;
 
 	do
