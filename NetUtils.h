@@ -37,8 +37,12 @@ namespace Utils{
 namespace Net{
 
 	struct sockaddr GetIfAddr(const std::string& ifname);
+	struct sockaddr GetNetmask(const std::string& ifname);
 	std::vector<uint8_t> GetHWAddr(const std::string& ifname);
 	std::list<std::string> GetInterfaces(void);
+
+	std::string SockAddrToString(struct sockaddr* address);
+
 }//NS Net
 
 } //NS Utils

@@ -25,15 +25,15 @@
 #include <cstdio>
 #include <unistd.h>
 #include <net/if.h>
+#include <arpa/inet.h>
 #include <sys/ioctl.h>
 
 #include "NetUtils.h"
 
 struct sockaddr Utils::Net::GetIfAddr(const std::string& ifname) {
-	int ret;
-	struct ifreq req;
+	struct ifreq req {};
 
-	bzero( &req, sizeof( struct ifreq ) );
+	memset( &req, 0, sizeof( struct ifreq ) );
 	sprintf( req.ifr_name, "%s", ifname.c_str() );
 
 	int sock = socket( AF_INET, SOCK_DGRAM, 0 );
@@ -42,13 +42,34 @@ struct sockaddr Utils::Net::GetIfAddr(const std::string& ifname) {
 		throw Utils::ErrnoException("Unable to create socket");
 	}
 
-	if( ( ret = ioctl( sock, SIOCGIFADDR, &req ) ) < 0 ){
+	if( ioctl( sock, SIOCGIFADDR, &req ) < 0 ){
 		throw ErrnoException("Unable to get address");
 	}
 
 	close( sock );
 
 	return req.ifr_addr;
+}
+
+sockaddr Utils::Net::GetNetmask(const std::string &ifname)
+{
+	struct ifreq req{};
+
+	memset( &req, 0, sizeof(struct ifreq) );
+	sprintf( req.ifr_name, "%s",ifname.c_str() );
+
+	int sock = socket( AF_INET,SOCK_DGRAM, 0 );
+
+	if( sock < 0){
+		throw Utils::ErrnoException("Unable to create socket");
+	}
+
+	if( ioctl( sock, SIOCGIFNETMASK, &req ) < 0 )
+	{
+		throw ErrnoException("Unable to get netmask from interface");
+	}
+
+	return req.ifr_netmask;
 }
 
 std::vector<uint8_t> Utils::Net::GetHWAddr(const std::string& ifname) {
@@ -96,4 +117,29 @@ std::list<std::string> Utils::Net::GetInterfaces(void) {
 		res.push_back(dev->ifr_name);
 	}
 	return res;
+}
+
+std::string Utils::Net::SockAddrToString(sockaddr *address)
+{
+	std::string ret;
+	switch( address->sa_family ){
+	case AF_UNIX :
+		throw std::runtime_error("Currently unsupported network class AF_UNIX");
+		break;
+	case AF_INET:
+	{
+		struct sockaddr_in *addr = ( struct sockaddr_in* ) address;
+		return inet_ntoa( addr->sin_addr );
+		break;
+	}
+	case AF_INET6:
+		throw std::runtime_error("Currently unsupported network class AF_INET6");
+		break;
+	case AF_UNSPEC:
+		throw std::runtime_error("Currently unsupported network class AF_UNSPEC");
+		break;
+	default:
+		throw std::runtime_error("Unknown network class");
+	}
+	return ret;
 }

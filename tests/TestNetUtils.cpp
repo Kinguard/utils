@@ -46,6 +46,14 @@ void TestNetUtils::testGetHWAddr()
 #endif
 }
 
+void TestNetUtils::testGetNetmask()
+{
+	struct sockaddr addr {};
+
+	addr = Utils::Net::GetNetmask(GetIfName());
+	CPPUNIT_ASSERT( Utils::Net::SockAddrToString(&addr) != "");
+}
+
 void TestNetUtils::testGetIfAddr() {
 	CPPUNIT_ASSERT_THROW(Utils::Net::GetIfAddr("nonsens") , Utils::ErrnoException);
 
