@@ -37,10 +37,12 @@ set( utils_headers
 	Condition.h
 	Exceptions.h
 	FileUtils.h
+	HttpStatusCodes.h
 	Logger.h
 	Mutex.h
 	NetUtils.h
 	NetServer.h
+	NetServices.h
 	Process.h
 	Regex.h
 	Shm.h
@@ -76,9 +78,6 @@ set( utils_src
 	UserGroups.cpp
 	)
 
-#add_definitions( -std=c++0x )
-
-# add_library( util_objs OBJECT ${utils_src} )
 add_library( utils_static STATIC ${utils_src} )
 add_library( utils SHARED ${utils_src} )
 
