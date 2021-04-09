@@ -1,3 +1,9 @@
+libutils (1.5.23) vili; urgency=medium
+
+  * Add more convenience file modes to FileUtils
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 09 Apr 2021 09:11:18 +0200
+
 libutils (1.5.22) vili; urgency=medium
 
   * Add GetNetmask and SockAddrToString in NetUtils
