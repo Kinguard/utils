@@ -49,6 +49,7 @@ constexpr mode_t UserWrite	= S_IWUSR;
 constexpr mode_t UserExec	= S_IXUSR;
 
 constexpr mode_t UserRWX	= UserRead | UserWrite | UserExec;
+constexpr mode_t UserRX	= UserRead | UserExec;
 constexpr mode_t UserRW		= UserRead | UserWrite;
 
 constexpr mode_t GroupRead	= S_IRGRP;
@@ -56,6 +57,7 @@ constexpr mode_t GroupWrite	= S_IWGRP;
 constexpr mode_t GroupExec	= S_IXGRP;
 
 constexpr mode_t GroupRWX	= GroupRead | GroupWrite | GroupExec;
+constexpr mode_t GroupRX	= GroupRead | GroupExec;
 constexpr mode_t GroupRW	= GroupRead | GroupWrite;
 
 constexpr mode_t OtherRead	= S_IROTH;
@@ -63,6 +65,7 @@ constexpr mode_t OtherWrite	= S_IWOTH;
 constexpr mode_t OtherExec	= S_IXOTH;
 
 constexpr mode_t OtherRWX	= OtherRead | OtherWrite | OtherExec;
+constexpr mode_t OtherRX	= OtherRead | OtherExec;
 constexpr mode_t OtherRW	= OtherRead | OtherWrite;
 
 constexpr mode_t SetUserID	= S_ISUID;
