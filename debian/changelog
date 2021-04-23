@@ -1,3 +1,16 @@
+libutils (1.5.25) vili; urgency=medium
+
+  * Add simple String::Join function
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 23 Apr 2021 16:42:11 +0200
+
+libutils (1.5.24) vili; urgency=medium
+
+  * Add NetServices constants
+  * Move HTTP status codes to libutils, from libopi
+
+ -- Tor Krill <tor@openproducts.se>  Fri, 09 Apr 2021 10:02:53 +0200
+
 libutils (1.5.23) vili; urgency=medium
 
   * Add more convenience file modes to FileUtils
