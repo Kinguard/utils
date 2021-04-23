@@ -120,6 +120,26 @@ string UUID(void)
 	throw std::runtime_error("Unable to construct uuid. Please implement fallback");
 }
 
+string Join(const list<string> &elems, const string &separator)
+{
+	stringstream ss;
+	bool first = true;
+	for( const auto& elem: elems)
+	{
+		if( first )
+		{
+			ss << elem;
+			first = false;
+		}
+		else
+		{
+			ss << separator;
+			ss << elem;
+		}
+	}
+	return ss.str();
+}
+
 } // Namespace String
 
 std::string Errno(const std::string& str){

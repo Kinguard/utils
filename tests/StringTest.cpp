@@ -97,6 +97,13 @@ void StringTest::testSplit()
 
 }
 
+void StringTest::testJoin()
+{
+	CPPUNIT_ASSERT_EQUAL( String::Join({},"/"), ""s);
+	CPPUNIT_ASSERT_EQUAL( String::Join({"a","b"},"/"), "a/b"s);
+	CPPUNIT_ASSERT_EQUAL( String::Join({"a"},"/"), "a"s);
+}
+
 void StringTest::testUUID()
 {
 #if 0

@@ -42,6 +42,7 @@ namespace String {
 	list<string> Split(const string& str, const char* delim=" ", ssize_t limit=-1);
 	void Split(const string& str, vector<string>& vals, const char* delim=" ", ssize_t limit=-1);
 	void Split(const string& str, list<string>& vals, const char* delim=" ", ssize_t limit=-1);
+	string Join(const list<string>& elems, const string& separator);
 	string UUID(void);
 }
 
