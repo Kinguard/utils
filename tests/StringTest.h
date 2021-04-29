@@ -12,6 +12,7 @@ class StringTest: public CppUnit::TestFixture
 	CPPUNIT_TEST( testSplit );
 	CPPUNIT_TEST( testUUID );
 	CPPUNIT_TEST( testJoin );
+	CPPUNIT_TEST( testToHuman );
 	CPPUNIT_TEST_SUITE_END();
 public:
 	void setUp();
@@ -23,6 +24,7 @@ public:
 	void testSplit();
 	void testJoin();
 	void testUUID();
+	void testToHuman();
 };
 
 #endif /* SOCKETTEST_H_ */

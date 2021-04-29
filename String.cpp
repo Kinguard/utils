@@ -31,6 +31,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cctype>
+#include <cmath>
 
 namespace Utils{
 
@@ -60,7 +61,7 @@ string ToUpper( string str )
 
 string Chomp( const string& str)
 {
-	string::size_type pos = str.find_last_not_of("\n");
+	string::size_type pos = str.find_last_not_of('\n');
 	return pos==string::npos?str:str.substr(0, pos+1);
 }
 
@@ -111,7 +112,7 @@ void Split(const string& str, list<string>& vals, const char* delim,
 	split(str, back_inserter(vals), delim, limit);
 }
 
-string UUID(void)
+string UUID()
 {
 	if( File::FileExists("/proc/sys/kernel/random/uuid") ){
 		return File::GetContentAsString("/proc/sys/kernel/random/uuid");
@@ -140,6 +141,40 @@ string Join(const list<string> &elems, const string &separator)
 	return ss.str();
 }
 
+
+string ToHuman(uint64_t value, const string &suffix, uint base)
+{
+	constexpr uint8_t DECIMAL = 10;
+	static const array<string, 8> units = {" ", " K", " M", " G", " T", " P", " E"};
+	int i = 0;
+
+	long double val = value;
+	long double integral = 0;
+	long double frac = 0;
+
+	while( val >= base )
+	{
+		val /= base;
+		i++;
+	}
+
+	frac = modfl(val, &integral);
+	uint fractasint = round(frac*DECIMAL);
+	std::stringstream ret;
+
+	if( i == 0  || fractasint == 0)
+	{
+		ret << integral << units.at(i) << suffix;
+		//ret << fixed << setprecision(0) << val << units.at(i);
+	}
+	else
+	{
+		ret << fixed << setprecision(1) << val << units.at(i) << suffix;
+	}
+
+	return ret.str();
+}
+
 } // Namespace String
 
 std::string Errno(const std::string& str){
@@ -152,16 +187,16 @@ std::string Errno(const std::string& str){
 	return ret;
 }
 
-#define NUMCHARS 0x10
-void HexDump(const void* data, int len){
+constexpr uint NUMCHARS = 0x10;
+void HexDump(const void* data, uint len){
 	const unsigned char* buf = static_cast<const unsigned char*>( data );
 
 	std::cout << "---------------- Hexdump "<< std::dec <<len << " ("<< std::hex << len<<") bytes ----------------"<<std::endl;
 
-	for( int i = 0; i < len; i+= NUMCHARS){
+	for( uint i = 0; i < len; i+= NUMCHARS){
 		std::cout << std::setw(6) << std::setfill('0') << std::hex << i << ": ";
 
-		for( int j = 0; j < NUMCHARS; j++){
+		for( uint j = 0; j < NUMCHARS; j++){
 			if( i + j < len ){
 				std::cout << std::setw(2) << std::setfill('0') << std::hex << (int) buf[i+j]<<" ";
 			}else{

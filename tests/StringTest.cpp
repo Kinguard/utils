@@ -4,6 +4,8 @@ CPPUNIT_TEST_SUITE_REGISTRATION (StringTest);
 
 #include "String.h"
 
+#include <cmath>
+
 using namespace Utils;
 
 void StringTest::setUp(){
@@ -113,4 +115,33 @@ void StringTest::testUUID()
 	CPPUNIT_ASSERT_NO_THROW(String::UUID());
 	string uuid=String::UUID();
 	CPPUNIT_ASSERT( uuid.size() > 0 );
+}
+
+void StringTest::testToHuman()
+{
+	constexpr uint64_t K = 1024;
+
+	CPPUNIT_ASSERT_EQUAL( String::ToHuman(12), "12 B"s );
+	CPPUNIT_ASSERT_EQUAL( String::ToHuman(1023), "1023 B"s );
+	CPPUNIT_ASSERT_EQUAL( String::ToHuman(K), "1 KB"s );
+	CPPUNIT_ASSERT_EQUAL( String::ToHuman(K,"iB"), "1 KiB"s );
+	CPPUNIT_ASSERT_EQUAL( String::ToHuman(K+51), "1 KB"s );
+	CPPUNIT_ASSERT_EQUAL( String::ToHuman(K+52), "1.1 KB"s );
+	CPPUNIT_ASSERT_EQUAL( String::ToHuman(K+1*102), "1.1 KB"s );
+	CPPUNIT_ASSERT_EQUAL( String::ToHuman(K+2*102), "1.2 KB"s );
+	CPPUNIT_ASSERT_EQUAL( String::ToHuman(K+5*102), "1.5 KB"s );
+	CPPUNIT_ASSERT_EQUAL( String::ToHuman(powl(K,2)), "1 MB"s );
+	CPPUNIT_ASSERT_EQUAL( String::ToHuman(powl(K,3)), "1 GB"s );
+	CPPUNIT_ASSERT_EQUAL( String::ToHuman(powl(K,4)), "1 TB"s );
+	CPPUNIT_ASSERT_EQUAL( String::ToHuman(powl(K,5)), "1 PB"s );
+	CPPUNIT_ASSERT_EQUAL( String::ToHuman(powl(K,6)), "1 EB"s );
+
+
+#if 0
+	cout << String::ToHuman(1024+2*102) << endl;
+	cout << String::ToHuman(1025) << endl;
+	cout << String::ToHuman(131072+523) << endl;
+	cout << String::ToHuman(1024*1024*3) << endl;
+	cout << String::ToHuman(1024*1024*3+1024*100) << endl;
+#endif
 }

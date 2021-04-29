@@ -43,12 +43,13 @@ namespace String {
 	void Split(const string& str, vector<string>& vals, const char* delim=" ", ssize_t limit=-1);
 	void Split(const string& str, list<string>& vals, const char* delim=" ", ssize_t limit=-1);
 	string Join(const list<string>& elems, const string& separator);
-	string UUID(void);
+	string UUID();
+	string ToHuman(uint64_t value, const string& suffix = "B", uint base = 1024);
 }
 
 std::string Errno(const std::string& str="");
 
-void HexDump(const void* data, int len);
+void HexDump(const void* data, uint len);
 
 }
 
