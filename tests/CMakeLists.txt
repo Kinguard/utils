@@ -16,6 +16,7 @@ set( testutils_src
 	TestArgParse.cpp
 	TestCircularBuffer.cpp
 	TestConfigFile.cpp
+	TestConstants.cpp
 	test.cpp
 	TestFileUtils.cpp
 	TestLogger.cpp

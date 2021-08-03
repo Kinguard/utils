@@ -323,7 +323,7 @@ string Utils::File::RealPath(const string &path)
 
 	if( !rcpath )
 	{
-		throw ErrnoException("Realpath failed");
+		throw ErrnoException("Realpath failed: " + path);
 	}
 	string rpath(rcpath);
 

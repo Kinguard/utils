@@ -35,6 +35,7 @@ set( utils_headers
 	ConfigFile.h
 	ClassTools.h
 	Condition.h
+	Constants.h
 	Exceptions.h
 	FileUtils.h
 	HttpStatusCodes.h

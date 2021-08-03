@@ -1,6 +1,7 @@
 #include "TestThread.h"
 
 #include "Thread.h"
+#include "Process.h"
 
 #include <unistd.h>
 
@@ -21,6 +22,7 @@ static int rvp;
 
 void SayHello(const string& name)
 {
+	(void) name;
 	//cout << "Hello, "<<name << endl;
 	rvp = 0;
 }
@@ -83,4 +85,18 @@ void TestThread::Test()
 	CPPUNIT_ASSERT( waitcompletion() );
 	CPPUNIT_ASSERT_EQUAL( 3113, t.count );
 
+}
+
+
+
+void TestThread::TestAsync()
+{
+	static Utils::Thread::Function mountandlink = []()
+	{
+		Utils::Process::Exec( "echo hello>>/tmp/hello.txt; sleep 5; echo world>>/tmp/hello.txt");
+	};
+
+	Thread::Async( &mountandlink);
+	Thread::Async( &mountandlink);
+	Thread::Async( &mountandlink);
 }
