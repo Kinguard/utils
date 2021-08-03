@@ -57,8 +57,8 @@ private:
 	bool running;
 	static void callback(union sigval sv);
 
-	struct sigevent sev;
-	timer_t tid;
+	struct sigevent sev{};
+	timer_t tid{};
 };
 
 class CallBackTimer: public Timer

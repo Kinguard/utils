@@ -109,14 +109,14 @@ public:
 	 * @param comment - comment character to comment line
 	 */
 
-	IniFile(const string& filename, const string& delim = "=", char comment='#');
+	IniFile(const string& filename, string  delim = "=", char comment='#');
 	/**
 	 * @brief IniFile - create IniFile object from list of lines
 	 * @param lines - List with lines to use as data
 	 * @param delim - delimiter between key and value on line
 	 * @param comment - comment character to comment line
 	 */
-	IniFile(const list<string>& lines, const string& delim = "=", char comment='#');
+	IniFile(const list<string>& lines, string  delim = "=", char comment='#');
 
 	/**
 	 * @brief UseSection - set current section to operate on

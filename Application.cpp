@@ -27,6 +27,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <utility>
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -83,17 +84,14 @@ void Application::SetExitcode(int code)
 	this->exitcode = code;
 }
 
-Application::~Application()
-{
-
-}
+Application::~Application() = default;
 
 /*
  * Daemon application implementation
  */
 
-DaemonApplication::DaemonApplication(const string &name, const string &pidpath, const string &user, const string &group):
-	Application(name), pidpath(pidpath), runasuser(user), runasgroup(group)
+DaemonApplication::DaemonApplication(const string &name, string pidpath, string user, string group):
+	Application(name), pidpath(std::move(pidpath)), runasuser(std::move(user)), runasgroup(std::move(group))
 {
 
 }
@@ -147,9 +145,6 @@ void DaemonApplication::PreMain()
 }
 
 
-DaemonApplication::~DaemonApplication()
-{
-
-}
+DaemonApplication::~DaemonApplication() = default;
 
 }

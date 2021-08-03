@@ -23,7 +23,8 @@
 
 #include <list>
 #include <sstream>
-#include <stdio.h>
+#include <utility>
+#include <cstdio>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -42,7 +43,7 @@ ConfigFile::ConfigFile(const string &filename): filename(filename)
 {
 	list<string> rows = File::GetContent(filename);
 
-	for( auto row: rows)
+	for( const auto& row: rows)
 	{
 		string line =  String::Trimmed(row, " \t");
 
@@ -90,7 +91,7 @@ void ConfigFile::Sync(bool create, mode_t mode)
 		File::Write(this->filename, "", mode);
 	}
 
-	struct stat st;
+	struct stat st{};
 	if( stat(this->filename.c_str(), &st) < 0 )
 	{
 		throw ErrnoException("Failed to stat file");
@@ -109,9 +110,7 @@ void ConfigFile::Sync(bool create, mode_t mode)
 
 
 ConfigFile::~ConfigFile()
-{
-
-}
+= default;
 
 string ConfigFile::ToString()
 {
@@ -128,8 +127,8 @@ string ConfigFile::ToString()
  * Inifile implementation
  *
  */
-IniFile::IniFile(const string &filename, const string &delim, char comment):
-	delimiter(delim),
+IniFile::IniFile(const string &filename, string delim, char comment):
+	delimiter(std::move(delim)),
 	comment(comment),
 	filename(filename),
 	currsection("")
@@ -139,9 +138,9 @@ IniFile::IniFile(const string &filename, const string &delim, char comment):
 	this->ParseInput( rows );
 }
 
-IniFile::IniFile(const list<string> &lines, const string &delim, char comment):
+IniFile::IniFile(const list<string> &lines, string delim, char comment):
 
-	delimiter(delim),
+	delimiter(std::move(delim)),
 	comment(comment),
 	filename(""),
 	currsection("")
@@ -192,7 +191,7 @@ void IniFile::Save(const string &filename, bool create, mode_t mode)
 		File::Write( outname, "", mode);
 	}
 
-	struct stat st;
+	struct stat st{};
 	if( stat(outname.c_str(), &st) < 0 )
 	{
 		throw ErrnoException("Failed to stat file");
@@ -214,13 +213,11 @@ void IniFile::Dump()
 }
 
 IniFile::~IniFile()
-{
-
-}
+= default;
 
 void IniFile::ParseInput(const list<string> &rows)
 {
-	for( auto row: rows)
+	for( const auto& row: rows)
 	{
 		string line =  String::Trimmed(row, " \t");
 
@@ -260,9 +257,9 @@ string IniFile::ToString()
 	for( auto iT = this->cbegin(); iT != this->end(); iT++)
 	{
 		ss << "[" << iT->first <<"]" << endl;
-		for( auto iiT = iT->second.cbegin(); iiT != iT->second.end(); iiT++)
+		for(const auto & iiT : iT->second)
 		{
-			ss << iiT->first << this->delimiter << iiT->second << endl;
+			ss << iiT.first << this->delimiter << iiT.second << endl;
 		}
 	}
 

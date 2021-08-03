@@ -26,7 +26,7 @@
 #include <iostream>
 #include <sstream>
 
-#include <string.h>
+#include <cstring>
 
 Utils::ArgParser::ArgParser():map<string,string>()
 {
@@ -55,7 +55,7 @@ Utils::ArgParser::AddOption(const Option& opt)
 		{
 			strdup( opt.long_desc.c_str() ),
 			opt.type,
-			0,
+			nullptr,
 			0
 		}
 		);
@@ -66,9 +66,9 @@ Utils::ArgParser::AddOption(const Option& opt)
 }
 
 void
-Utils::ArgParser::AddOptions( list<Option> l)
+Utils::ArgParser::AddOptions( const list<Option>& l)
 {
-	for( auto opt: l)
+	for( const auto& opt: l)
 	{
 		this->AddOption(opt);
 	}
@@ -86,14 +86,14 @@ Utils::ArgParser::Parse(int argc, char ** const argv)
 
 	// Make sure last element in longopts is 0
 	struct option last = this->longopts.back();
-	if( last.name != 0 || last.has_arg != 0 || last.flag != 0 || last.val != 0 )
+	if( last.name != nullptr || last.has_arg != 0 || last.flag != nullptr || last.val != 0 )
 	{
-		this->longopts.push_back( { 0, 0, 0, 0} );
+		this->longopts.push_back( { nullptr, 0, nullptr, 0} );
 	}
 
-	int c;
-	int opt_ind;
-	while(1)
+	int c = 0;
+	int opt_ind = 0;
+	while(true)
 	{
 		opt_ind = 0;
 		c = getopt_long(argc, argv, shortargs.c_str(), &this->longopts[0], &opt_ind);
@@ -139,7 +139,7 @@ Utils::ArgParser::Parse(int argc, char ** const argv)
 	{
 		while (optind < argc)
 		{
-			this->reminder.push_back(argv[optind++]);
+			this->reminder.emplace_back(argv[optind++]);
 		}
 	}
 
@@ -202,7 +202,7 @@ inline int
 Utils::ArgParser::FindIndex(char c)
 {
 	int i = 0;
-	for( auto x: this->opts)
+	for( const auto& x: this->opts)
 	{
 		if( x.short_desc == c )
 		{

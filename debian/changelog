@@ -1,3 +1,9 @@
+libutils (1.5.29~test1) vili; urgency=medium
+
+  * Change type definitions try fix arm build problems
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 03 Aug 2021 16:15:27 +0200
+
 libutils (1.5.28) vili; urgency=medium
 
   * Add Utils::Constants with binary/SI prefixes

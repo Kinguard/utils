@@ -23,6 +23,8 @@
 
 #include "Logger.h"
 
+#include <utility>
+
 namespace Utils {
 /* Global instances */
 Endl lend;
@@ -35,7 +37,7 @@ Logger logg([](const std::string& s){ std::cout << s; },"",false);
 
 Logger::Logger(std::function<void(const std::string&)> o,
 		const std::string& name, bool timestamp) :
-		out(o), name(name), timestamp(timestamp), first(true),
+		out(std::move(o)), name(name), timestamp(timestamp), first(true),
 		level(Logger::Error),lastlevel(Logger::Debug)
 {
 	this->hasname = name != "";
@@ -76,7 +78,7 @@ void
 Logger::SetOutputter ( std::function<void
 ( const std::string& )> o )
 {
-	this->out = o;
+	this->out = std::move(o);
 }
 
 inline void Logger::doFirst() {
@@ -97,8 +99,8 @@ inline void Logger::doFirst() {
 #define CLOCK_MONOTONIC_RAW 4
 #endif
 
-void Logger::getTime(void) {
-	timespec ts;
+void Logger::getTime() {
+	timespec ts{};
 	if (clock_gettime(CLOCK_MONOTONIC_RAW, &ts)) {
 		throw Utils::ErrnoException("Failed to get time");
 	}
@@ -181,9 +183,9 @@ ScopedLog::~ScopedLog()
 	logg << Logger::Debug << name << " stop"<<lend;
 }
 
-Endl::~Endl(){}
+Endl::~Endl()= default;
 
-Manip::~Manip(){}
+Manip::~Manip()= default;
 
 
 }

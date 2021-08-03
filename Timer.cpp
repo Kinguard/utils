@@ -26,6 +26,7 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <utility>
 
 using namespace std;
 
@@ -46,7 +47,7 @@ Timer::Timer(): running(false)
 
 void Timer::Start(uint64_t start, uint64_t interval)
 {
-	struct itimerspec its;
+	struct itimerspec its{};
 
 	its.it_value.tv_sec = 0;
 	its.it_value.tv_nsec = start;
@@ -68,7 +69,7 @@ void Timer::Stop()
 
 uint64_t Timer::GetTime()
 {
-	struct itimerspec it;
+	struct itimerspec it{};
 
 	if( timer_gettime( this->tid, &it) == -1 )
 	{
@@ -86,7 +87,14 @@ Timer::~Timer()
 {
 	if( this->running )
 	{
-		this->Stop();
+		try
+		{
+			this->Stop();
+		}
+		catch (exception& e)
+		{
+			(void) e;
+		}
 	}
 }
 
@@ -98,7 +106,7 @@ void Timer::callback(union sigval sv)
 
 
 
-CallBackTimer::CallBackTimer(std::function<void(int)> func, int val): Timer(), callback(func), value(val)
+CallBackTimer::CallBackTimer(std::function<void(int)> func, int val): Timer(), callback(std::move(func)), value(val)
 {
 
 }
@@ -109,8 +117,6 @@ void CallBackTimer::Event()
 }
 
 CallBackTimer::~CallBackTimer()
-{
-
-}
+= default;
 
 }

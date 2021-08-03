@@ -137,7 +137,7 @@ typedef std::shared_ptr<Application> ApplicationPtr;
 class DaemonApplication : public Application
 {
 public:
-	DaemonApplication(const string& name, const string& pidpath, const string& user, const string& group);
+	DaemonApplication(const string& name, string  pidpath, string  user, string  group);
 
 	virtual ~DaemonApplication();
 protected:

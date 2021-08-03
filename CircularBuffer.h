@@ -79,7 +79,7 @@ public:
 	void SetEof(); // Set up eof and inform readers
 
 	CircularReaderPtr GetReader();
-	void PutReader(CircularReaderPtr rd);
+	void PutReader(const CircularReaderPtr& rd);
 	int NumReaders();
 
 	virtual ~CircularBuffer();

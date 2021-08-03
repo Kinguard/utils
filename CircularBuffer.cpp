@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include <utility>
 
 using namespace Utils;
 
@@ -95,10 +96,7 @@ bool Utils::CircularReader::Eof()
 	return this->eof;
 }
 
-Utils::CircularReader::~CircularReader()
-{
-	//cout << "Circular reader destroyed:"<<this<<endl;
-}
+Utils::CircularReader::~CircularReader() = default;
 
 /*
  *
@@ -112,7 +110,7 @@ Utils::CircularBuffer::CircularBuffer(int capacity):
 {
 }
 
-void Utils::CircularBuffer::UpdateReaders(void) {
+void Utils::CircularBuffer::UpdateReaders() {
 	static int ofcount = 0;
 	for(auto& x: this->readers){
 		CircularReaderPtr r = x.second;
@@ -135,7 +133,7 @@ void Utils::CircularBuffer::AddData(CircularData data) {
 	this->mutex.Lock();
 
 
-	this->data[this->wp]=data;
+	this->data[this->wp]=std::move(data);
 	this->wp = (this->wp + 1 ) % this->datasize;
 
 	this->UpdateReaders();
@@ -158,7 +156,7 @@ CircularReaderPtr Utils::CircularBuffer::GetReader() {
 	return reader;
 }
 
-void Utils::CircularBuffer::PutReader(CircularReaderPtr rd)
+void Utils::CircularBuffer::PutReader(const CircularReaderPtr& rd)
 {
 	this->mutex.Lock();
 
@@ -173,7 +171,7 @@ void Utils::CircularBuffer::PutReader(CircularReaderPtr rd)
 	this->mutex.Unlock();
 }
 
-void Utils::CircularBuffer::SignalReaders(void)
+void Utils::CircularBuffer::SignalReaders()
 {
 	this->hasdata.NotifyAll();
 }
@@ -209,6 +207,4 @@ void Utils::CircularBuffer::WaitForData()
 }
 
 
-Utils::CircularBuffer::~CircularBuffer()
-{
-}
+Utils::CircularBuffer::~CircularBuffer() = default;

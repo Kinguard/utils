@@ -39,7 +39,7 @@ uid_t
 Utils::User::UserToUID ( const std::string& username )
 {
 	ScopedLock l(umutex);
-	struct passwd* pwd;
+	struct passwd* pwd = nullptr;
 
 	if(!(pwd=getpwnam(username.c_str()))){
 		throw ErrnoException("Failed to get pw from user");
@@ -52,7 +52,7 @@ std::string
 Utils::User::UIDToUser ( uid_t uid )
 {
 	ScopedLock l(umutex);
-	struct passwd* pwd;
+	struct passwd* pwd = nullptr;
 
 	if(!(pwd=getpwuid(uid))){
 		throw ErrnoException("Failed to get pwd from uid");
@@ -68,17 +68,17 @@ Utils::User::Groups ( const std::string& user )
 
 	list<pair<string,gid_t> > res;
 	int ngroups=20;
-	gid_t *groups;
-	struct passwd *pw;
-	struct group *gr;
+	gid_t *groups = nullptr;
+	struct passwd *pw = nullptr;
+	struct group *gr = nullptr;
 
 	groups =(gid_t *) malloc(ngroups * sizeof (gid_t));
-	if (groups == NULL) {
+	if (groups == nullptr) {
 		throw std::runtime_error("Unable to allocate memory");
 	}
 
 	pw = getpwnam(user.c_str());
-	if (pw == NULL) {
+	if (pw == nullptr) {
 		free(groups);
 		throw ErrnoException("Failed to get pw from username");
 	}
@@ -90,8 +90,8 @@ Utils::User::Groups ( const std::string& user )
 
 	for (int j = 0; j < ngroups; j++) {
 		gr = getgrgid(groups[j]);
-		if (gr != NULL){
-			res.push_back(pair<string,gid_t>(gr->gr_name,gr->gr_gid));
+		if (gr != nullptr){
+			res.emplace_back(gr->gr_name,gr->gr_gid);
 		}
 	}
 	free(groups);
@@ -102,7 +102,7 @@ std::string
 Utils::Group::GIDToGroup ( gid_t gid )
 {
 	ScopedLock l(gmutex);
-	struct group* grp;
+	struct group* grp = nullptr;
 
 	if(!(grp=getgrgid(gid))){
 		throw ErrnoException("Failed to get group id");
@@ -115,7 +115,7 @@ gid_t
 Utils::Group::GroupToGID ( const std::string& groupname )
 {
 	ScopedLock l(gmutex);
-	struct group* grp;
+	struct group* grp = nullptr;
 
 	if(!(grp=getgrnam(groupname.c_str()))){
 		throw ErrnoException("Failed to get group name");

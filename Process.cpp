@@ -83,9 +83,9 @@ static void reset_signal(struct sigaction *act)
 
 tuple<bool, string> Utils::Process::Exec(const string &cmd)
 {
-	bool temp_unblocked, sig_result;
+	bool temp_unblocked = false, sig_result = false;
 	string res_desc;
-	struct sigaction act;
+	struct sigaction act{};
 	tie(temp_unblocked, sig_result, res_desc) = check_signal(&act);
 
 	if( !sig_result )
@@ -146,7 +146,7 @@ void Utils::Process::Spawn(const string &cmd, const list<string> &args)
 	//TODO: Figure out nice way to not leak memory via strdup
 	cargs.push_back(strdup(cmd.c_str()));
 
-	for(auto arg: args)
+	for(const auto& arg: args)
 	{
 		cargs.push_back(strdup(arg.c_str()));
 	}

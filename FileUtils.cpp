@@ -106,7 +106,7 @@ std::list<std::string> Utils::File::GetContent(const std::string& path)
 
 static int do_open(const string& path, mode_t mode, bool write = true)
 {
-	int fd, flags = write?O_WRONLY|O_CREAT|O_TRUNC:O_RDONLY;
+	int fd = 0, flags = write?O_WRONLY|O_CREAT|O_TRUNC:O_RDONLY;
 
 	if((fd=open(path.c_str(),flags,mode))<0){
 		throw Utils::ErrnoException("Unable to open file '"+path+"' for " + string(write?"writing":"reading"));

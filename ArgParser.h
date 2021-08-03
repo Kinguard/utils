@@ -67,7 +67,7 @@ public:
 	ArgParser();
 
 	void AddOption(const Option& opt);
-	void AddOptions( list<Option> l);
+	void AddOptions( const list<Option>& l);
 
 	bool Parse(int argc, char ** const argv);
 
