@@ -1,6 +1,6 @@
-libutils (1.5.29~test1) vili; urgency=medium
+libutils (1.5.29) vili; urgency=medium
 
-  * Change type definitions try fix arm build problems
+  * Fix compilation issues on Arm and misc lint cleanups
 
  -- Tor Krill <tor@openproducts.se>  Tue, 03 Aug 2021 16:15:27 +0200
 
