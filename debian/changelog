@@ -1,3 +1,16 @@
+libutils (1.5.30) vigrid; urgency=medium
+
+  * Bullseye build
+
+ -- Tor Krill <tor@openproducts.se>  Tue, 01 Feb 2022 11:48:54 +0100
+
+libutils (1.5.30~test3) vigrid; urgency=medium
+
+  * Testbuild for both buster & bullseye
+  * MINI_BUILDD_OPTION: auto-ports=vili
+
+ -- Tor Krill <tor@openproducts.se>  Wed, 10 Nov 2021 10:45:51 +0100
+
 libutils (1.5.29) vili; urgency=medium
 
   * Fix compilation issues on Arm and misc lint cleanups
