@@ -46,6 +46,7 @@ set( utils_headers
 	NetServices.h
 	Process.h
 	Regex.h
+	Serial.h
 	Shm.h
 	SimpleHttpClient.h
 	Socket.h
@@ -69,6 +70,7 @@ set( utils_src
 	NetServer.cpp
 	Process.cpp
 	Regex.cpp
+	Serial.cpp
 	Shm.cpp
 	SimpleHttpClient.cpp
 	Socket.cpp
