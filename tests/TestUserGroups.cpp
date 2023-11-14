@@ -22,8 +22,8 @@ void TestUserGroups::TestUser()
 	CPPUNIT_ASSERT_EQUAL( (uid_t)0, User::UserToUID("root") );
 	CPPUNIT_ASSERT_EQUAL( std::string("root"), User::UIDToUser(0) );
 	CPPUNIT_ASSERT_THROW( User::UserToUID("unknown user"), ErrnoException );
-	// Hopefully we will never have user 999
-	CPPUNIT_ASSERT_THROW( User::UIDToUser(999), ErrnoException );
+	// Hopefully we will never have user 9999
+	CPPUNIT_ASSERT_THROW( User::UIDToUser(9999), ErrnoException );
 
 	CPPUNIT_ASSERT_THROW( User::Groups("unknown user"), ErrnoException );
 
