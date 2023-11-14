@@ -28,9 +28,7 @@ using namespace std;
 
 #define ECHO_SERVER "localhost"
 
-#include "String.h"
 #include "Thread.h"
-#include "FileUtils.h"
 #include "Condition.h"
 
 class TestServer: public Utils::Thread {
@@ -84,11 +82,11 @@ public:
 		serv->SetTimeout(0,10000);
 	}
 
-	virtual void Run()
+	void Run() override
 	{
 		//cout << "TestEcho server starting up!"<<endl;
 		Utils::Net::SocketPtr c;
-		while(  c = serv->Accept() )
+		while(  (c = serv->Accept()) )
 		{
 			//cout << "TestEcho Got connection!"<< endl;
 			char data[512];
@@ -147,7 +145,7 @@ void SocketTest::testSocketConstructor() {
 void SocketTest::testTCPClientConstructor()
 {
 
-	CPPUNIT_ASSERT_NO_THROW(TCPClientSocket t() );
+	CPPUNIT_ASSERT_NO_THROW(TCPClientSocket t(void) );
 	CPPUNIT_ASSERT_NO_THROW(TCPClientSocket t("www.google.se",80) );
 	//TODO: fix error cases not possible atm due to opendns stupid behavior
 }
@@ -202,7 +200,7 @@ void SocketTest::testTCPClientEcho() {
 
 void SocketTest::testUDPSocketConstructor()
 {
-	CPPUNIT_ASSERT_NO_THROW(UDPClientSocket s() );
+	CPPUNIT_ASSERT_NO_THROW(UDPClientSocket s(void) );
 	CPPUNIT_ASSERT_NO_THROW(UDPClientSocket s(ECHO_SERVER, 7) );
 }
 
@@ -252,7 +250,7 @@ private:
 #include <unistd.h>
 void SocketTest::testUDPSocketSendTo() {
 	const char* group="239.255.255.250";
-	uint16_t port = 1920;
+	uint16_t const port = 1920;
 
 	Listen l(false, this->netif);
 
@@ -460,7 +458,7 @@ public:
 
 	UnixFDTest():TestServer(false),s("/tmp/socktest"){}
 
-	virtual void Run()
+	void Run() override
 	{
 		this->joined.Notify();
 		s.SetTimeout(1,0);
@@ -473,7 +471,7 @@ public:
 				throw std::runtime_error("Failed to open test file");
 			}
 
-			UnixStreamClientSocket *cs=static_cast<UnixStreamClientSocket *>(c.get());
+			auto *cs=static_cast<UnixStreamClientSocket *>(c.get());
 
 			cs->SendFd(fd);
 			close(fd);

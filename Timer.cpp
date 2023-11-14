@@ -97,10 +97,11 @@ Timer::~Timer()
 		}
 	}
 }
-
+#include <cassert>
 void Timer::callback(union sigval sv)
 {
-	Timer* t = static_cast<Timer*>( sv.sival_ptr );
+	auto* t = static_cast<Timer*>( sv.sival_ptr );
+	assert(t);
 	t->Event();
 }
 

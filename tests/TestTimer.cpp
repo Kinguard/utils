@@ -17,24 +17,24 @@ void TestTimer::tearDown()
 class TimerTest: public Timer
 {
 public:
-	TimerTest():Timer(),counter(0)
+	TimerTest():Timer()
 	{
 	}
 
-	virtual void Event()
+	void Event() override
 	{
 		this->counter++;
 	}
 
-	virtual ~TimerTest(){}
+	~TimerTest() override = default;
 
-	int getCounter() const
+	[[nodiscard]] int getCounter() const
 	{
 		return counter;
 	}
 
 private:
-	int counter;
+	int counter{0};
 };
 
 void TestTimer::Test()
@@ -48,7 +48,7 @@ void TestTimer::Test()
 	t.Stop();
 	usleep(10000); // Let timer stop
 
-	int count = t.getCounter();
+	int const count = t.getCounter();
 
 	CPPUNIT_ASSERT( count > 0 );
 	usleep(10000);
@@ -56,10 +56,14 @@ void TestTimer::Test()
 }
 
 
-static int counter = 0;
-static void testcounter(int t)
+namespace {
+int counter = 0;
+
+void testcounter(int t)
 {
 	counter += t;
+}
+
 }
 
 void TestTimer::TestCallback()
@@ -73,7 +77,7 @@ void TestTimer::TestCallback()
 	t.Stop();
 	usleep(10000); // Let timer stop
 
-	int count = counter;
+	int const count = counter;
 
 	CPPUNIT_ASSERT( count > 0 );
 	usleep(10000);

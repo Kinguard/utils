@@ -155,7 +155,7 @@ ClassWriter::ClassWriter(const char* name, bool life) :
 	}
 }
 
-inline void ClassWriter::o(const char* line) {
+void ClassWriter::o(const char* line) {
 	std::cout << name << ": " << line << std::endl << std::flush;
 }
 

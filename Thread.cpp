@@ -46,7 +46,7 @@ Thread::Thread(bool detached): thread(0), detached(detached),state( UnInitialize
 
 void* Thread::BootstrapThread(void* obj)
 {
-	Thread* q=static_cast<Thread*>(obj);
+	auto* q=static_cast<Thread*>(obj);
 	if (q)
 	{
 		q->state = Initialized;
@@ -78,12 +78,12 @@ void Thread::Kill()
 
 void Thread::Yield()
 {
-	pthread_yield();
+	sched_yield();
 }
 
 static void* trampolin(void*  arg)
 {
-	Thread::Function* fn = static_cast<Thread::Function*>(arg);
+	auto* fn = static_cast<Thread::Function*>(arg);
 
 	if( fn )
 	{
