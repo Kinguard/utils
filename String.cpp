@@ -31,6 +31,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cctype>
+#include <array>
 #include <cmath>
 
 namespace Utils{
